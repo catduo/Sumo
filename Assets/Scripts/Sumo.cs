@@ -39,9 +39,12 @@ public class Sumo : MonoBehaviour {
 	
 	private float flashTime = 0.1F;
 	private bool flash = false;
+	
+	private Jovios jovios;
 
 	// Use this for initialization
 	void Start () {
+		jovios = GameManager.jovios;
 		crown = transform.FindChild("Crown");
 		body = transform.FindChild("Body");
 		modifiers = transform.FindChild("Modifiers");
@@ -170,21 +173,21 @@ public class Sumo : MonoBehaviour {
 			else{
 				body.rigidbody.velocity *= 0.95F;
 			}
-			if(new Vector2(Jovios.players[playerNumber].right.direction.x, Jovios.players[playerNumber].right.direction.y) != Vector2.zero){
+			if(jovios.GetPlayer(playerNumber).GetInput("right").GetDirection() != Vector2.zero){
 				if(!is_attacking){
 					attackPower++;
 				}
-				if((Jovios.players[playerNumber].right.direction.y > 0)){
-					body.eulerAngles = new Vector3(body.eulerAngles.x, body.eulerAngles.y, - Vector2.Angle(new Vector2(1,0), new Vector2(Jovios.players[playerNumber].right.direction.x, Jovios.players[playerNumber].right.direction.y)));
+				if(jovios.GetPlayer(playerNumber).GetInput("right").GetDirection().y > 0){
+					body.eulerAngles = new Vector3(body.eulerAngles.x, body.eulerAngles.y, - Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()));
 				}
 				else{
-					body.eulerAngles = new Vector3(body.eulerAngles.x, body.eulerAngles.y, Vector2.Angle(new Vector2(1,0), new Vector2(Jovios.players[playerNumber].right.direction.x, Jovios.players[playerNumber].right.direction.y)));
+					body.eulerAngles = new Vector3(body.eulerAngles.x, body.eulerAngles.y, Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()));
 				}
 			}
 			else if(attackPower > 0 && !is_attacking){
 				Attack();
 			}
-			transform.Translate( new Vector3(speed * Jovios.players[playerNumber].left.direction.y/10, speed * Jovios.players[playerNumber].left.direction.x/10, 0));
+			transform.Translate( new Vector3(speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().y, speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().x, 0));
 			body.rigidbody.angularVelocity = Vector3.zero;
 			float handScale = Mathf.Min (0.5F * strength, (0.4F * attackPower / attackMax + 0.2F) * strength);
 			hand.localScale = new Vector3(handScale, handScale, handScale);
@@ -213,12 +216,12 @@ public class Sumo : MonoBehaviour {
 		}
 	}
 	
-	public void SetMyPlayer (Player player){
-		myPlayer = player.networkPlayer;
-		playerNumber = player.playerNumber;
-		primary = player.primary;
-		secondary = player.secondary;
-		playerName = player.playerName;
+	public void SetMyPlayer (JoviosPlayer player){
+		myPlayer = player.GetNetworkPlayer();
+		playerNumber = player.GetPlayerNumber();
+		primary = player.GetColor("primary");
+		secondary = player.GetColor("secondary");
+		playerName = player.GetPlayerName();
 		body = transform.FindChild("Body");
 		body.GetComponent<SumoCollision>().startPosition = body.position;
 		robot = body.FindChild("Robot1");

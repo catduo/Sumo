@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_LINUX;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_2_2;UNITY_4_2;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_2_2;UNITY_4_2;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -46,7 +46,17 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\BonusSpawner.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Scripts\Jovios.cs" />
+     <Compile Include="Assets\Scripts\Jovios\IJoviosControllerListener.cs" />
+     <Compile Include="Assets\Scripts\Jovios\IJoviosPlayerListener.cs" />
+     <Compile Include="Assets\Scripts\Jovios\Jovios.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosButtonEvent.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosControllerAccelerometerStyle.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosControllerAreaStyle.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosControllerOverallStyle.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosControllerStyle.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosInput.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosPlayer.cs" />
+     <Compile Include="Assets\Scripts\Jovios\JoviosUserID.cs" />
      <Compile Include="Assets\Scripts\MenuManager.cs" />
      <Compile Include="Assets\Scripts\NetworkManager.cs" />
      <Compile Include="Assets\Scripts\Projectile.cs" />

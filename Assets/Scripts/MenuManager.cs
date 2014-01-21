@@ -27,9 +27,13 @@ public class MenuManager : MonoBehaviour {
 	
 	private bool is_roundStarted = false;
 	
+	private Jovios jovios;
+	
 	void Start(){
 		//iPhoneSettings.screenCanDarken = false;
 		mainCamera = GameObject.Find ("MainCamera").transform;
+		jovios = GameManager.jovios;
+		jovios.StartServer();
 	}
 	
 	void OnGUI(){
@@ -50,7 +54,7 @@ public class MenuManager : MonoBehaviour {
 			}
 			if(Application.isWebPlayer){
 				if (GUI.Button(new Rect(Screen.width/2-Screen.width/10,Screen.height/10*4,Screen.width/5,Screen.height/5), "Reload Player")){
-					Jovios.NewUrl(Application.absoluteURL);
+					jovios.NewUrl(Application.absoluteURL);
 				}
 			}
 			if (GUI.Button(new Rect(Screen.width/2-Screen.width/20,Screen.height - Screen.height/20,Screen.width/10,Screen.height/20), "Menu")){
@@ -97,12 +101,14 @@ public class MenuManager : MonoBehaviour {
 			if(timer < 1){
 				timer = countdownTime;
 				gameState = GameState.GameEnd;
-				for(int i = 0; i < Jovios.players.Length; i++){
-					Jovios.SetBasicButtons("Play Again!", "Would you like to play this game again?", Jovios.players[i].networkPlayer);
+				for(int i = 0; i < jovios.GetPlayerCount(); i++){
+					JoviosControllerStyle controllerStyle = new JoviosControllerStyle(JoviosControllerOverallStyle.BasicButtons, "Would you like to play this game again?", new string[] {"Play Again!"});
+					jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
 				}
 				Transform po = GameObject.Find ("PlayerObjects").transform;
 				for(int i = 0; i < po.childCount; i++){
 					Destroy(po.GetChild(i).gameObject);
+					jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().is_ready = false;
 				}
 				Transform mo = GameObject.Find ("Modifiers").transform;
 				for(int i = 0; i < mo.childCount; i++){
@@ -120,7 +126,7 @@ public class MenuManager : MonoBehaviour {
 			}
 			if(Application.isWebPlayer){
 				if (GUI.Button(new Rect(Screen.width/2.5F,0,Screen.width/5,Screen.height/20), "Reload Player")){
-					Jovios.NewUrl(Application.absoluteURL);
+					jovios.NewUrl(Application.absoluteURL);
 				}
 			}
 			if (GUI.Button(new Rect(Screen.width/2-Screen.width/20,Screen.height - Screen.height/20,Screen.width/10,Screen.height/20), "Menu")){
@@ -131,7 +137,9 @@ public class MenuManager : MonoBehaviour {
 			
 			
 		case GameState.GameEnd:
-			GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "The Winner is " + Jovios.players[GameManager.winner[0]].playerName);
+			if(GameManager.winner[0] > -1){
+				GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "The Winner is " + jovios.GetPlayer(GameManager.winner[0]).GetPlayerName());
+			}
 			break;
 			
 			
@@ -142,7 +150,7 @@ public class MenuManager : MonoBehaviour {
 		if (is_loadingNewGame){
 			GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "Loading New Game");
 		}
-		GUI.Box(new Rect(0,Screen.height - Screen.height/8,Screen.width/5,Screen.height/8), "Game Code\n" + Jovios.gameName);
+		GUI.Box(new Rect(0,Screen.height - Screen.height/8,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.GetGameName());
 	}
 		
 	

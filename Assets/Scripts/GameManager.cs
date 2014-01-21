@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	private Transform modifiers;
-	public static int[] score;
+	public static Dictionary<JoviosUserID, int> score = new Dictionary<JoviosUserID, int>();
 	public static int[] winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 	public static GameObject chosenArena;
 	public static GameObject[] arenas;
@@ -15,9 +16,16 @@ public class GameManager : MonoBehaviour {
 	public GameObject arenaSelection;	
 	public static Transform bonusSpawners;
 	public static float bonusSpawnTimer = 0;
+	public GameObject statusObject;
+	public static Jovios jovios;
+	
+	void Awake(){
+		jovios = Jovios.Create();
+	}
 	
 	// Use this for initialization
 	void Start () {
+		jovios.AddPlayerListener(this);
 		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4}; 
 		chosenArena = (GameObject) GameObject.Instantiate(arenaSelection, Vector3.zero, Quaternion.identity);
 		modifiers = GameObject.Find ("Modifiers").transform;
@@ -31,23 +39,35 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 	
+	bool IJoviosPlayerListener.PlayerConnected(JoviosPlayer p){
+		GameObject newStatusObject = (GameObject) GameObject.Instantiate(statusObject, Vector3.zero, Quaternion.identity);
+		p.SetStatusObject(newStatusObject);
+		newStatusObject.GetComponent<Status>().SetMyPlayer(p);
+		return false;
+	}
+	bool IJoviosPlayerListener.PlayerUpdated(JoviosPlayer p){
+		p.GetStatusObject().GetComponent<Status>().SetMyPlayer(p);
+		return false;
+	}
+	bool IJoviosPlayerListener.PlayerDisconnected(JoviosPlayer p){
+		return false;
+	}
+	
 	public static void StartRound(){
-		for(int i = 0; i < Jovios.players.Length; i++){
-			if(Jovios.players[i].statusObject.GetComponent<Status>().is_ready){
-				Jovios.players[i].statusObject.GetComponent<Status>().StartRound();
+		for(int i = 0; i < jovios.GetPlayerCount(); i++){
+			if(jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().is_ready){
+				jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().StartRound();
 			}
 		}
-		score = new int[32];
-		Debug.Log(score[0]);
 	}
 	
 	public static void EndRound(){
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
 		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
-		for(int i = 0; i < Jovios.players.Length; i++){
-			Jovios.players[i].statusObject.GetComponent<Status>().xMark.renderer.enabled = true;
-			Jovios.players[i].statusObject.GetComponent<Status>().checkMark.renderer.enabled = false;
+		for(int i = 0; i < jovios.GetPlayerCount(); i++){
+			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;
+			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().checkMark.renderer.enabled = false;
 		}
 	}
 	

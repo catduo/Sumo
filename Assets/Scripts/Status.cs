@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Status : MonoBehaviour {
+public class Status : MonoBehaviour, IJoviosControllerListener {
 
 	public int playerNumber;
-	public NetworkPlayer myPlayer;
+	public JoviosUserID myPlayer;
 	public Color primary;
 	public Color secondary;
 	public string playerName;
@@ -19,39 +19,45 @@ public class Status : MonoBehaviour {
 	public int chosenArena;
 		
 	private Transform body;
-
-	// Use this for initialization
-	void Start () {
-		transform.parent = GameObject.Find ("PlayerStatus").transform;
-		if(playerNumber < 4){
-			transform.localPosition = new Vector3(-4.5F + (playerNumber -1) * 4, -1.75F, 0);
-		}
-		else{
-			transform.localPosition = new Vector3(-4.5F + (playerNumber -5) * 4, -3F, 0);
-		}
-		transform.localRotation = Quaternion.identity;
-		body = transform.FindChild("Primary");
-		score = transform.FindChild("Score").GetComponent<TextMesh>();
-		crown = transform.FindChild("Crown");
-		xMark = transform.Find("X");
-		checkMark = transform.Find("Check");
-		xMark.renderer.enabled = true;
-		checkMark.renderer.enabled = false;
-		crown.renderer.enabled = false;
-		myPlayer = Jovios.players[Jovios.players.Length - 1].networkPlayer;
-		playerNumber = Jovios.players.Length - 1;
-		Jovios.SetBasicButtons("Join Game", "Ready to Play?", myPlayer);
-		score.text = "";
+	
+	private Jovios jovios;
+	
+	bool IJoviosControllerListener.ButtonEventReceived(JoviosButtonEvent e){
+		OnButton(e.GetResponse());
+		return false;
 	}
 	
-	public void SetMyPlayer (Player playerInfo){
-		myPlayer = playerInfo.networkPlayer;
-		playerNumber = playerInfo.playerNumber;
-		primary = playerInfo.primary;
-		secondary = playerInfo.secondary;
-		playerName = playerInfo.playerName;
-		if(playerInfo.playerName.Length>0){
-			playerCharacter = playerInfo.playerName[0].ToString();
+	public void SetMyPlayer (JoviosPlayer playerInfo){
+		if(!is_ready){
+			jovios = GameManager.jovios;
+			jovios.AddControllerListener(this, playerNumber: playerInfo.GetPlayerNumber());
+			playerNumber = jovios.GetPlayerCount() - 1;
+			transform.parent = GameObject.Find ("PlayerStatus").transform;
+			if(playerNumber < 4){
+				transform.localPosition = new Vector3(-4.5F + (playerNumber -1) * 4, -1.75F, 0);
+			}
+			else{
+				transform.localPosition = new Vector3(-4.5F + (playerNumber -5) * 4, -3F, 0);
+			}
+			transform.localRotation = Quaternion.identity;
+			body = transform.FindChild("Primary");
+			score = transform.FindChild("Score").GetComponent<TextMesh>();
+			crown = transform.FindChild("Crown");
+			xMark = transform.Find("X");
+			checkMark = transform.Find("Check");
+			xMark.renderer.enabled = true;
+			checkMark.renderer.enabled = false;
+			crown.renderer.enabled = false;
+			score.text = "";
+			GameManager.score.Add(jovios.GetPlayer(playerNumber).GetUserID(), 0);
+		}
+		myPlayer = jovios.GetPlayer(playerNumber).GetUserID();
+		playerNumber = playerInfo.GetPlayerNumber();
+		primary = playerInfo.GetColor("primary");
+		secondary = playerInfo.GetColor("secondary");
+		playerName = playerInfo.GetPlayerName();
+		if(playerName.Length>0){
+			playerCharacter = playerName[0].ToString();
 		}
 		else{
 			playerCharacter = "";
@@ -61,8 +67,12 @@ public class Status : MonoBehaviour {
 		character.color = secondary;
 		character.text = playerCharacter;
 		body.renderer.material.color = primary;
-		if(Jovios.players[playerNumber].playerObject != null){
-			Jovios.players[playerNumber].playerObject.GetComponent<Sumo>().SetMyPlayer(playerInfo);
+		if(jovios.GetPlayer(playerNumber).GetPlayerObject() != null){
+			jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().SetMyPlayer(playerInfo);
+		}
+		if(!is_ready){
+			JoviosControllerStyle controllerStyle = new JoviosControllerStyle(JoviosControllerOverallStyle.BasicButtons, "Would you like to play?", new string[] {"Join Game"});
+			jovios.SetControls(myPlayer, controllerStyle);
 		}
 	}
 	
@@ -77,7 +87,8 @@ public class Status : MonoBehaviour {
 			
 			case GameState.ChooseArena:
 				Ready ();
-				Jovios.SetControls(myPlayer, 0, "Move Character", 3, "SelectLevel");
+				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle(JoviosControllerAreaStyle.Joystick, "Move Character", JoviosControllerAreaStyle.Button1, "Select Level");
+				jovios.SetControls(myPlayer, controllerStyle1);
 				break;
 				
 			case GameState.GameOn:
@@ -86,7 +97,8 @@ public class Status : MonoBehaviour {
 				break;
 				
 			case GameState.GameEnd:
-				Jovios.SetBasicButtons("Play Again!", "Would you like to play this game again?", Jovios.players[playerNumber].networkPlayer);
+				JoviosControllerStyle controllerStyle2 = new JoviosControllerStyle(JoviosControllerOverallStyle.BasicButtons, "Would you like to play this game again?", new string[] {"Play Again!"});
+				jovios.SetControls(myPlayer, controllerStyle2);
 				break;
 				
 			case GameState.Menu:
@@ -101,7 +113,7 @@ public class Status : MonoBehaviour {
 			OnButton("Join Game");
 			break;
 			
-		case "Jovios--right--press--A":
+		case "Select Level":
 			GameManager.ChooseArena(chosenArena);
 			break;
 			
@@ -114,13 +126,13 @@ public class Status : MonoBehaviour {
 	public void Ready(){
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = true;
-		if(Jovios.players[playerNumber].playerObject == null){
+		if(jovios.GetPlayer(playerNumber).GetPlayerObject() == null){
 			GameObject newPlayerObject = (GameObject) GameObject.Instantiate(playerObject, new Vector3(0,-4,0.5F), Quaternion.identity);
-			newPlayerObject.transform.RotateAround(Vector3.zero, Vector3.forward, 360 - 360 / (playerNumber + 1) * Jovios.players.Length);
-			newPlayerObject.transform.Rotate(new Vector3(0, 0, - 360 + 360 / (playerNumber + 1) * Jovios.players.Length));
+			newPlayerObject.transform.RotateAround(Vector3.zero, Vector3.forward, 360 - 360 / (playerNumber + 1) * jovios.GetPlayerCount());
+			newPlayerObject.transform.Rotate(new Vector3(0, 0, - 360 + 360 / (playerNumber + 1) * jovios.GetPlayerCount()));
 			newPlayerObject.transform.parent = GameObject.Find ("PlayerObjects").transform;
-			newPlayerObject.SendMessage("SetMyPlayer", Jovios.players[playerNumber], SendMessageOptions.DontRequireReceiver);
-			Jovios.players[playerNumber].playerObject = newPlayerObject;
+			newPlayerObject.GetComponent<Sumo>().SetMyPlayer(jovios.GetPlayer(playerNumber));
+			jovios.GetPlayer(playerNumber).SetPlayerObject(newPlayerObject);
 		}
 		is_ready = true;
 	}
@@ -130,19 +142,10 @@ public class Status : MonoBehaviour {
 		score.color = Color.white;
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = false;
-		Jovios.SetControls(Jovios.players[playerNumber].networkPlayer, 0, "Move Character",0, "Move for Direction\nRelease to Fire");
+		JoviosControllerStyle controllerStyle = new JoviosControllerStyle(JoviosControllerAreaStyle.Joystick, "Move Character", JoviosControllerAreaStyle.Joystick, "Aim by Moving\nHold to Charge\nRelease to Fire");
+		jovios.SetControls(myPlayer, controllerStyle);
 	}
 	
 	public void Reset(int newPlayerNumber){
-		playerNumber = newPlayerNumber;
-		if(Jovios.players[newPlayerNumber].playerObject != null){
-			Jovios.players[newPlayerNumber].playerObject.GetComponent<Sumo>().playerNumber = newPlayerNumber;
-		}
-		if(playerNumber < 4){
-			transform.localPosition = new Vector3(-4.5F + (playerNumber -1) * 4, -1.75F, 0);
-		}
-		else{
-			transform.localPosition = new Vector3(-4.5F + (playerNumber -5) * 4, -3F, 0);
-		}
 	}
 }
