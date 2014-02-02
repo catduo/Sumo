@@ -78,16 +78,16 @@ public class SumoCollision : MonoBehaviour {
 	void OnCollisionExit(Collision collision){
 		switch(collision.transform.name){
 		case "Arena1Platform":
-			collision.transform.renderer.material.color = new Color(0.8F, 0.8F, 0.8F, 0.2F);
+			collision.transform.renderer.enabled = false;
 			break;
 		case "Arena2Platform":
-			collision.transform.renderer.material.color = new Color(0.8F, 0.8F, 0.8F, 0.2F);
+			collision.transform.renderer.enabled = false;
 			break;
 		case "Arena3Platform":
-			collision.transform.renderer.material.color = new Color(0.8F, 0.8F, 0.8F, 0.2F);
+			collision.transform.renderer.enabled = false;
 			break;
 		case "Arena4Platform":
-			collision.transform.renderer.material.color = new Color(0.8F, 0.8F, 0.8F, 0.2F);
+			collision.transform.renderer.enabled = false;
 			break;
 		default:
 			break;
@@ -140,7 +140,7 @@ public class SumoCollision : MonoBehaviour {
 					lastPlayerHit = -1;
 				}
 				break;
-			case "Bumper":
+			case "Bumper(Clone)":
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);
 				break;
 			case "BonusBox":
@@ -148,6 +148,7 @@ public class SumoCollision : MonoBehaviour {
 				transform.parent.GetComponent<Sumo>().activeBoost = other.transform.parent.GetComponent<BonusSpawner>().bonusType;
 				transform.parent.GetComponent<Sumo>().boostStart = Time.time;
 				transform.parent.GetComponent<Sumo>().boostDuration = 5;
+				other.transform.FindChild(other.transform.parent.GetComponent<BonusSpawner>().bonusType.ToString()).GetChild(0).renderer.enabled = false;
 				other.transform.parent.GetComponent<BonusSpawner>().bonusType = BonusType.None;
 				break;
 			}

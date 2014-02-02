@@ -26,11 +26,31 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		OnButton(e.GetResponse());
 		return false;
 	}
+
+	void Update(){
+		if(jovios.GetPlayer(myPlayer) != null){
+			if(MenuManager.gameState == GameState.GameOn){
+				transform.FindChild("Bracket").renderer.enabled = true;
+			}
+			else{
+				transform.FindChild("Bracket").renderer.enabled = false;
+			}
+			if(jovios.GetPlayer(myPlayer).PlayerObjectCount() > 0){
+				transform.FindChild("Immunity").renderer.enabled = false;
+				transform.FindChild("Range").renderer.enabled = false;
+				transform.FindChild("Rampage").renderer.enabled = false;
+				transform.FindChild("Speed").renderer.enabled = false;
+				transform.FindChild("Strength").renderer.enabled = false;
+				if(jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().activeBoost != BonusType.None){
+					transform.FindChild(jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().activeBoost.ToString()).renderer.enabled = true;
+				}
+			}
+		}
+	}
 	
 	public void SetMyPlayer (JoviosPlayer playerInfo){
 		if(!is_ready){
 			jovios = GameManager.jovios;
-			jovios.AddControllerListener(this, playerNumber: playerInfo.GetPlayerNumber());
 			playerNumber = jovios.GetPlayerCount() - 1;
 			transform.parent = GameObject.Find ("PlayerStatus").transform;
 			if(playerNumber < 4){
@@ -50,7 +70,13 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			crown.renderer.enabled = false;
 			score.text = "";
 			GameManager.score.Add(jovios.GetPlayer(playerNumber).GetUserID(), 0);
+			jovios.AddControllerListener(this, playerInfo.GetUserID());
 		}
+		transform.FindChild("Immunity").renderer.enabled = false;
+		transform.FindChild("Range").renderer.enabled = false;
+		transform.FindChild("Rampage").renderer.enabled = false;
+		transform.FindChild("Speed").renderer.enabled = false;
+		transform.FindChild("Strength").renderer.enabled = false;
 		myPlayer = jovios.GetPlayer(playerNumber).GetUserID();
 		playerNumber = playerInfo.GetPlayerNumber();
 		primary = playerInfo.GetColor("primary");
@@ -67,11 +93,12 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		character.color = secondary;
 		character.text = playerCharacter;
 		body.renderer.material.color = primary;
-		if(jovios.GetPlayer(playerNumber).GetPlayerObject() != null){
+		if(jovios.GetPlayer(playerNumber).PlayerObjectCount() > 0){
 			jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().SetMyPlayer(playerInfo);
 		}
 		if(!is_ready){
-			JoviosControllerStyle controllerStyle = new JoviosControllerStyle(JoviosControllerOverallStyle.BasicButtons, "Would you like to play?", new string[] {"Join Game"});
+			JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
+			controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
 			jovios.SetControls(myPlayer, controllerStyle);
 		}
 	}
@@ -87,7 +114,9 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			
 			case GameState.ChooseArena:
 				Ready ();
-				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle(JoviosControllerAreaStyle.Joystick, "Move Character", JoviosControllerAreaStyle.Button1, "Select Level");
+				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
+				controllerStyle1.AddAbsoluteJoystick("left", "Move Character");
+				controllerStyle1.AddButton1("right", "Select Level", "Select Level");
 				jovios.SetControls(myPlayer, controllerStyle1);
 				break;
 				
@@ -97,7 +126,8 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				break;
 				
 			case GameState.GameEnd:
-				JoviosControllerStyle controllerStyle2 = new JoviosControllerStyle(JoviosControllerOverallStyle.BasicButtons, "Would you like to play this game again?", new string[] {"Play Again!"});
+				JoviosControllerStyle controllerStyle2 = new JoviosControllerStyle();
+				controllerStyle2.SetBasicButtons("Would you like to play this game again?", new string[] {"Play Again!"});
 				jovios.SetControls(myPlayer, controllerStyle2);
 				break;
 				
@@ -110,7 +140,11 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown){
 				GameManager.EndRound();
 			}
-			OnButton("Join Game");
+			Ready ();
+			JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
+			controllerStyle1.AddAbsoluteJoystick("left", "Move Character");
+			controllerStyle1.AddButton1("right", "Select Level", "Select Level");
+			jovios.SetControls(myPlayer, controllerStyle1);
 			break;
 			
 		case "Select Level":
@@ -126,13 +160,13 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	public void Ready(){
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = true;
-		if(jovios.GetPlayer(playerNumber).GetPlayerObject() == null){
+		if(jovios.GetPlayer(playerNumber).PlayerObjectCount() == 0){
 			GameObject newPlayerObject = (GameObject) GameObject.Instantiate(playerObject, new Vector3(0,-4,0.5F), Quaternion.identity);
 			newPlayerObject.transform.RotateAround(Vector3.zero, Vector3.forward, 360 - 360 / (playerNumber + 1) * jovios.GetPlayerCount());
 			newPlayerObject.transform.Rotate(new Vector3(0, 0, - 360 + 360 / (playerNumber + 1) * jovios.GetPlayerCount()));
 			newPlayerObject.transform.parent = GameObject.Find ("PlayerObjects").transform;
 			newPlayerObject.GetComponent<Sumo>().SetMyPlayer(jovios.GetPlayer(playerNumber));
-			jovios.GetPlayer(playerNumber).SetPlayerObject(newPlayerObject);
+			jovios.GetPlayer(playerNumber).AddPlayerObject(newPlayerObject);
 		}
 		is_ready = true;
 	}
@@ -142,7 +176,9 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		score.color = Color.white;
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = false;
-		JoviosControllerStyle controllerStyle = new JoviosControllerStyle(JoviosControllerAreaStyle.Joystick, "Move Character", JoviosControllerAreaStyle.Joystick, "Aim by Moving\nHold to Charge\nRelease to Fire");
+		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
+		controllerStyle.AddAbsoluteJoystick("left", "Move Character by tapping and swiping");
+		controllerStyle.AddAbsoluteJoystick("right", "Aim by Moving\nHold to Charge\nRelease to Fire");
 		jovios.SetControls(myPlayer, controllerStyle);
 	}
 	

@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 3d7629322d6d4f049b8e94d0b2e57198
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - bonusSpawner: {fileID: 400002, guid: ad9a14760c3fc4c448e05e472e844870, type: 2}
+  - bumper: {fileID: 400000, guid: 4888b0ad69dd58f46863b1c2789fedcd, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 

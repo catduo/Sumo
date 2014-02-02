@@ -40,7 +40,17 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	bool IJoviosPlayerListener.PlayerConnected(JoviosPlayer p){
-		GameObject newStatusObject = (GameObject) GameObject.Instantiate(statusObject, Vector3.zero, Quaternion.identity);
+		GameObject newStatusObject = null;
+		GameObject ps = GameObject.Find("PlayerStatus");
+		for(int i = 0; i < ps.transform.childCount; i++){
+			if(ps.transform.GetChild(i).GetComponent<Status>().myPlayer.GetIDNumber() == p.GetUserID().GetIDNumber()){
+				newStatusObject = ps.transform.GetChild(i).gameObject;
+				newStatusObject.GetComponent<Status>().is_ready = false;
+			}
+		}
+		if(newStatusObject == null){
+			newStatusObject = (GameObject) GameObject.Instantiate(statusObject, Vector3.zero, Quaternion.identity);
+		}
 		p.SetStatusObject(newStatusObject);
 		newStatusObject.GetComponent<Status>().SetMyPlayer(p);
 		return false;
@@ -64,6 +74,12 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public static void EndRound(){
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
+		foreach (JoviosUserID thisjUID in score.Keys){
+			score[thisjUID] = 0;
+		}
+		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
+		controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
+		jovios.SetControls(controllerStyle);
 		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;

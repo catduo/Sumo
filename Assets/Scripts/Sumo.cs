@@ -5,6 +5,7 @@ using System.Collections;
 
 public class Sumo : MonoBehaviour {
 
+	public float scale = 1;
 	public float speed = 1;
 	public float strength = 1;
 	public float range = 1;
@@ -37,8 +38,9 @@ public class Sumo : MonoBehaviour {
 	public GameObject projectile;
 	private Transform modifiers;
 	
-	private float flashTime = 0.1F;
-	private bool flash = false;
+	private bool is_strong = false;
+	private bool is_range = false;
+	private bool is_rampage = false;
 	
 	private Jovios jovios;
 
@@ -78,95 +80,143 @@ public class Sumo : MonoBehaviour {
 		crown.position = body.position + new Vector3(0,0.1F,-0.5F);
 		if(MenuManager.gameState == GameState.ChooseArena){
 			hand.collider.enabled = false;
-			hand.renderer.enabled = false;
+			hand.FindChild("Sphere").renderer.enabled = false;
 		}
-		else{
+		else if(!is_rampage){
 			hand.collider.enabled = true;
-			hand.renderer.enabled = true;
+			hand.FindChild("Sphere").renderer.enabled = true;
 		}
 		if(is_boostActive){
+			is_boostActive = false;
+			scale = 1;
+			speed = 1;
+			range = 1;
+			strength = 1;
+			defense = 1;
+			body.transform.name = "Body";
+			hand.collider.enabled = true;
+			hand.FindChild("Sphere").renderer.enabled = true;
+			hand.GetComponent<Projectile>().Normal();
+			primary = new Color(primary.r, primary.g, primary.b, 1);
+			secondary = new Color(secondary.r, secondary.g, secondary.b, 1);
+			Shader robotShader = Shader.Find("Reflective/Specular");
+			Color metal = Color.grey;
+			is_strong = false;
+			is_range = false;
+			is_rampage = false;
 			switch(activeBoost){
 			case BonusType.Speed:
 				speed = 1.5F;
-				range = 1;
-				strength = 1;
-				defense = 1;
-				flashColor = Color.yellow;
-				body.transform.name = "Body";
-				hand.collider.enabled = true;
-				hand.renderer.enabled = true;
 				break;
 			
 			case BonusType.Immunity:
+				robotShader = Shader.Find("Transparent/Diffuse");
 				defense = 100;
-				range = 1;
-				strength = 1;
-				speed = 1;
-				flashColor = Color.white;
-				body.transform.name = "Body";
-				hand.collider.enabled = true;
-				hand.renderer.enabled = true;
+				primary = new Color(primary.r, primary.g, primary.b, 0.5F);
+				secondary = new Color(secondary.r, secondary.g, secondary.b, 0.5F);
 				break;
 			
 			case BonusType.Rampage:
+				scale = 1.5F;
 				defense = 3;
 				speed = 1.2F;
-				hand.collider.enabled = false;
-				hand.renderer.enabled = false;
+				is_rampage = true;
+				metal = Color.red;
 				body.transform.name = "Rampage";
-				range = 1;
-				flashColor = Color.red;
 				break;
 			
 			case BonusType.Strength:
-				strength = 2;
-				range = 1;
-				defense = 1;
-				speed = 1;
-				hand.renderer.enabled = true;
-				hand.collider.enabled = true;
-				flashColor = Color.green;
-				body.transform.name = "Body";
+				is_strong = true;
 				break;
 			
 			case BonusType.Range:
+				is_range = true;
 				range = 2;
-				strength = 1;
-				defense = 1;
-				speed = 1;
-				hand.collider.enabled = true;
-				hand.renderer.enabled = true;
-				flashColor = Color.blue;
-				body.transform.name = "Body";
 				break;
 			}
-			if(flashTime + 0.2F < Time.time){
-				flashTime = Time.time;
-				flash = !flash;
+			robot = body.FindChild("Robot1");
+			for(int i = 0; i < robot.childCount; i++){
+				if(robot.GetChild(i).name == "Sphere_008"){
+					robot.GetChild(i).GetChild(0).renderer.material.shader = robotShader;
+					robot.GetChild(i).GetChild(1).renderer.material.shader = robotShader;
+					robot.GetChild(i).GetChild(2).renderer.material.shader = robotShader;
+					robot.GetChild(i).GetChild(0).renderer.material.color = primary;
+					robot.GetChild(i).GetChild(1).renderer.material.color = primary;
+					robot.GetChild(i).GetChild(2).renderer.material.color = primary;
+				}
+				else if(robot.GetChild(i).name == "Sphere_009"){
+					robot.GetChild(i).GetChild(0).renderer.material.shader = robotShader;
+					robot.GetChild(i).GetChild(1).renderer.material.shader = robotShader;
+					robot.GetChild(i).GetChild(2).renderer.material.shader = robotShader;
+					robot.GetChild(i).GetChild(0).renderer.material.color = secondary;
+					robot.GetChild(i).GetChild(1).renderer.material.color = secondary;
+					robot.GetChild(i).GetChild(2).renderer.material.color = secondary;
+				}
+				else{
+					robot.GetChild(i).renderer.material.shader = robotShader;
+					robot.GetChild(i).renderer.material.color = metal;
+				}
 			}
-			if(flash){
-				robot.renderer.material.color = primary;
+			robot = robot.GetChild(13);
+			body.localScale = Vector3.one * scale;
+		}
+		else if(boostStart + boostDuration < Time.time){
+			primary = new Color(primary.r, primary.g, primary.b, 1);
+			secondary = new Color(secondary.r, secondary.g, secondary.b, 1);
+			scale = 1;
+			speed = 1;
+			range = 1;
+			strength = 1;
+			defense = 1;
+			body.transform.name = "Body";
+			hand.collider.enabled = true;
+			hand.FindChild("Sphere").renderer.enabled = true;
+			hand.GetComponent<Projectile>().Normal();
+			body.localScale = Vector3.one * scale;
+			is_strong = false;
+			is_range = false;
+			is_rampage = false;
+			robot = body.FindChild("Robot1");
+			for(int i = 0; i < robot.childCount; i++){
+				if(robot.GetChild(i).name == "Sphere_008"){
+					robot.GetChild(i).GetChild(0).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).GetChild(1).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).GetChild(2).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).GetChild(0).renderer.material.color = primary;
+					robot.GetChild(i).GetChild(1).renderer.material.color = primary;
+					robot.GetChild(i).GetChild(2).renderer.material.color = primary;
+				}
+				else if(robot.GetChild(i).name == "Sphere_009"){
+					robot.GetChild(i).GetChild(0).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).GetChild(1).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).GetChild(2).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).GetChild(0).renderer.material.color = secondary;
+					robot.GetChild(i).GetChild(1).renderer.material.color = secondary;
+					robot.GetChild(i).GetChild(2).renderer.material.color = secondary;
+				}
+				else{
+					robot.GetChild(i).renderer.material.shader = Shader.Find("Reflective/Specular");
+					robot.GetChild(i).renderer.material.color = Color.grey;
+				}
 			}
-			else{
-				robot.renderer.material.color = flashColor;
-			}
-			if(boostStart + boostDuration < Time.time){
-				defense = 1;
-				speed = 1;
-				range = 1;
-				strength = 1;
-				is_boostActive = false;
-				hand.renderer.enabled = true;
-				hand.collider.enabled = true;
-				body.transform.name = "Body";
-				robot.renderer.material.color = primary;
-			}
+			robot = robot.GetChild(13);
+			activeBoost = BonusType.None;
 		}
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
 		if(!body.GetComponent<SumoCollision>().is_ringOut && (MenuManager.gameState == GameState.ChooseArena || MenuManager.gameState == GameState.GameOn)){	
+			if(is_strong){
+				hand.GetComponent<Projectile>().Strong();
+			}
+			else if(is_rampage){
+				hand.FindChild("Sphere").renderer.enabled = false;
+				hand.collider.enabled = false;
+			}
+			else{
+				hand.GetComponent<Projectile>().Normal();
+			}
 			if(body.rigidbody.velocity.magnitude < 1){
 				body.rigidbody.velocity = new Vector3(0, 0, body.rigidbody.velocity.z);
 			}
@@ -178,20 +228,23 @@ public class Sumo : MonoBehaviour {
 					attackPower++;
 				}
 				if(jovios.GetPlayer(playerNumber).GetInput("right").GetDirection().y > 0){
-					body.eulerAngles = new Vector3(body.eulerAngles.x, body.eulerAngles.y, - Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()));
+					body.eulerAngles = new Vector3(body.eulerAngles.y, body.eulerAngles.x, Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()) - 90);
 				}
 				else{
-					body.eulerAngles = new Vector3(body.eulerAngles.x, body.eulerAngles.y, Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()));
+					body.eulerAngles = new Vector3(body.eulerAngles.y, body.eulerAngles.x, - Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()) - 90);
 				}
 			}
 			else if(attackPower > 0 && !is_attacking){
 				Attack();
 			}
-			transform.Translate( new Vector3(speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().y, speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().x, 0));
+			transform.Translate( new Vector3(speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().x, speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().y, 0));
 			body.rigidbody.angularVelocity = Vector3.zero;
 			float handScale = Mathf.Min (0.5F * strength, (0.4F * attackPower / attackMax + 0.2F) * strength);
 			hand.localScale = new Vector3(handScale, handScale, handScale);
 			if(is_attacking){
+				if(is_range){
+					hand.GetComponent<Projectile>().Range();
+				}
 				hand.GetComponent<Projectile>().facing = body.up;
 				hand.GetComponent<Projectile>().fireDuration = range;
 				is_attacking = false;
@@ -246,5 +299,9 @@ public class Sumo : MonoBehaviour {
 	public void Attack(){
 		is_attacking = true;
 		attackTime = Time.time;
+	}
+
+	void OnDisable(){
+		jovios.GetPlayer(playerNumber).RemovePlayerObject(gameObject);
 	}
 }

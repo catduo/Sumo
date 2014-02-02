@@ -23,31 +23,23 @@ public class BonusSpawner : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if(bonusType != BonusType.None){
-			bonusBox.renderer.enabled = true;
 			bonusBox.collider.enabled = true;
-			bonusBox.localPosition = new Vector3(0, 0, Mathf.Sin(Time.time)/3);
-			bonusBox.Rotate(new Vector3(0, 0, 2));
-			switch(bonusType){
-			case BonusType.Speed:
-				bonusBox.renderer.material.color = Color.yellow;
-				break;
-			case BonusType.Immunity:
-				bonusBox.renderer.material.color = Color.white;
-				break;
-			case BonusType.Rampage:
-				bonusBox.renderer.material.color = Color.red;
-				break;
-			case BonusType.Strength:
-				bonusBox.renderer.material.color = Color.green;
-				break;
-			case BonusType.Range:
-				bonusBox.renderer.material.color = Color.blue;
-				break;
-			}
+			bonusBox.localPosition = new Vector3(0, 0, Mathf.Sin(Time.time)/6 + 0.3F);
+			bonusBox.Rotate(new Vector3(0, 0, 1));
+			bonusBox.GetChild(0).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(1).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(2).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(3).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(4).GetChild(0).renderer.enabled = false;
+			bonusBox.FindChild(bonusType.ToString()).GetChild(0).renderer.enabled = true;
 		}
 		else{
-			bonusBox.renderer.enabled = false;
 			bonusBox.collider.enabled = false;
+			bonusBox.GetChild(0).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(1).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(2).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(3).GetChild(0).renderer.enabled = false;
+			bonusBox.GetChild(4).GetChild(0).renderer.enabled = false;
 		}
 	}
 }

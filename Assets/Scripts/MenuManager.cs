@@ -18,6 +18,7 @@ public class MenuManager : MonoBehaviour {
 	static public int countdownTime = 3;
 	static public int timer = countdownTime;
 	static public float lastTickTime;
+	public Texture2D menuButton;
 	public Font font;
 	private Transform mainCamera;
 	private string muteText = "Mute";
@@ -38,8 +39,12 @@ public class MenuManager : MonoBehaviour {
 	
 	void OnGUI(){
 		GUI.skin.font = font;
+		GUI.skin.label.normal.textColor = Color.white;
+		GUI.skin.box.normal.textColor = Color.white;
 		GUI.skin.box.wordWrap = true;
+		GUI.skin.label.wordWrap = true;
 		GUI.skin.button.wordWrap = true;
+		GUI.skin.label.fontSize = Mathf.RoundToInt((Camera.main.WorldToScreenPoint(new Vector2(1,1)).x-Camera.main.WorldToScreenPoint(new Vector2(0,0)).x)*0.7F);
 		GUI.skin.box.fontSize = Mathf.RoundToInt((Camera.main.WorldToScreenPoint(new Vector2(1,1)).x-Camera.main.WorldToScreenPoint(new Vector2(0,0)).x)*0.7F);
 		GUI.skin.button.fontSize = Mathf.RoundToInt((Camera.main.WorldToScreenPoint(new Vector2(1,1)).x-Camera.main.WorldToScreenPoint(new Vector2(0,0)).x)*0.7F);
 		GUI.skin.textArea.fontSize = Mathf.RoundToInt((Camera.main.WorldToScreenPoint(new Vector2(1,1)).x-Camera.main.WorldToScreenPoint(new Vector2(0,0)).x)*0.7F);
@@ -52,11 +57,6 @@ public class MenuManager : MonoBehaviour {
 					Screen.fullScreen = !Screen.fullScreen;
 				}
 			}
-			if(Application.isWebPlayer){
-				if (GUI.Button(new Rect(Screen.width/2-Screen.width/10,Screen.height/10*4,Screen.width/5,Screen.height/5), "Reload Player")){
-					jovios.NewUrl(Application.absoluteURL);
-				}
-			}
 			if (GUI.Button(new Rect(Screen.width/2-Screen.width/20,Screen.height - Screen.height/20,Screen.width/10,Screen.height/20), "Menu")){
 				gameState = previousGameState;
 			}
@@ -64,7 +64,7 @@ public class MenuManager : MonoBehaviour {
 			
 			
 		case GameState.ChooseArena:
-			GUI.Box(new Rect(Screen.width - Screen.width/2.5F,0,Screen.width/5,Screen.height/5), "Choose Arena");
+			GUI.Box(new Rect(Screen.width - Screen.width/2.5F,0,Screen.width/5,Screen.height/15), "Choose Arena");
 			if (GUI.Button(new Rect(Screen.width/2-Screen.width/20,Screen.height - Screen.height/20,Screen.width/10,Screen.height/20), "Menu")){
 				gameState = GameState.Menu;
 				previousGameState = GameState.ChooseArena;
@@ -73,10 +73,10 @@ public class MenuManager : MonoBehaviour {
 			
 			
 		case GameState.Countdown:
-			GUI.Box(new Rect(Screen.width - Screen.width/2.5F,0,Screen.width/5,Screen.height/5), "Game Starts In");
-			GUI.skin.box.fontSize *= 2;
-			GUI.Box(new Rect(Screen.width - Screen.width/2.5F,Screen.height/5,Screen.width/5,Screen.height/5), timer.ToString());
-			GUI.skin.box.fontSize /= 2;
+			GUI.skin.label.alignment = TextAnchor.MiddleCenter;
+			GUI.skin.box.fontSize *= 4;
+			GUI.Box(new Rect(0,0,Screen.width,Screen.height), "\n\n" + timer.ToString());
+			GUI.skin.box.fontSize /= 4;
 			if(timer < 1){
 				GameManager.StartRound();
 				timer = roundDuration;
@@ -94,15 +94,15 @@ public class MenuManager : MonoBehaviour {
 			
 			
 		case GameState.GameOn:
-			GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "Time Remaining");
-			GUI.skin.box.fontSize *= 2;
-			GUI.Box(new Rect(Screen.width - Screen.width/5,Screen.height/5,Screen.width/5,Screen.height/5), timer.ToString());
-			GUI.skin.box.fontSize /= 2;
+			GUI.skin.label.alignment = TextAnchor.UpperRight;
+			GUI.Label(new Rect(Screen.width * 4/5,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/4,Screen.height/8), "Time Remaining");
+			GUI.Label(new Rect(Screen.width * 4/5,Screen.height - GUI.skin.label.fontSize * 1.125F,Screen.width/5,Screen.height/4), timer.ToString());
 			if(timer < 1){
 				timer = countdownTime;
 				gameState = GameState.GameEnd;
 				for(int i = 0; i < jovios.GetPlayerCount(); i++){
-					JoviosControllerStyle controllerStyle = new JoviosControllerStyle(JoviosControllerOverallStyle.BasicButtons, "Would you like to play this game again?", new string[] {"Play Again!"});
+					JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
+					controllerStyle.SetBasicButtons("Would you like to play this game again?", new string[] {"Play Again!"});
 					jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
 				}
 				Transform po = GameObject.Find ("PlayerObjects").transform;
@@ -122,11 +122,6 @@ public class MenuManager : MonoBehaviour {
 			if(!Screen.fullScreen){
 				if (GUI.Button(new Rect(Screen.width/10,0,Screen.width/5,Screen.height/20), "FullScreen")){
 					Screen.fullScreen = !Screen.fullScreen;
-				}
-			}
-			if(Application.isWebPlayer){
-				if (GUI.Button(new Rect(Screen.width/2.5F,0,Screen.width/5,Screen.height/20), "Reload Player")){
-					jovios.NewUrl(Application.absoluteURL);
 				}
 			}
 			if (GUI.Button(new Rect(Screen.width/2-Screen.width/20,Screen.height - Screen.height/20,Screen.width/10,Screen.height/20), "Menu")){
@@ -150,7 +145,8 @@ public class MenuManager : MonoBehaviour {
 		if (is_loadingNewGame){
 			GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "Loading New Game");
 		}
-		GUI.Box(new Rect(0,Screen.height - Screen.height/8,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.GetGameName());
+		GUI.skin.label.alignment = TextAnchor.UpperLeft;
+		GUI.Label(new Rect(0,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.GetGameName());
 	}
 		
 	
