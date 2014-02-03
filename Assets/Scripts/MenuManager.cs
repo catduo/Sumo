@@ -95,8 +95,7 @@ public class MenuManager : MonoBehaviour {
 			
 		case GameState.GameOn:
 			GUI.skin.label.alignment = TextAnchor.UpperRight;
-			GUI.Label(new Rect(Screen.width * 4/5,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/4,Screen.height/8), "Time Remaining");
-			GUI.Label(new Rect(Screen.width * 4/5,Screen.height - GUI.skin.label.fontSize * 1.125F,Screen.width/5,Screen.height/4), timer.ToString());
+			GUI.Label(new Rect(Screen.width * 7/10 - GUI.skin.label.fontSize * 0.25F,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width*3/10,Screen.height/8), "Time Left\n" + timer.ToString());
 			if(timer < 1){
 				timer = countdownTime;
 				gameState = GameState.GameEnd;
@@ -146,7 +145,7 @@ public class MenuManager : MonoBehaviour {
 			GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "Loading New Game");
 		}
 		GUI.skin.label.alignment = TextAnchor.UpperLeft;
-		GUI.Label(new Rect(0,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.GetGameName());
+		GUI.Label(new Rect(GUI.skin.label.fontSize * 0.25F,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.GetGameName());
 	}
 		
 	

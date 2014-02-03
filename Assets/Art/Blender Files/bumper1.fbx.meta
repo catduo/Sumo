@@ -1,14 +1,18 @@
 fileFormatVersion: 2
-guid: a61f79a0ea8bbc04a9b1c8cc7c81a5c6
+guid: 84fa9c0431234d64e8c0e9dadfeba76e
 ModelImporter:
   serializedVersion: 16
   fileIDToRecycleName:
     100000: //RootNode
-    100002: Cylinder
-    100004: Plane
+    100002: Camera
+    100004: Cylinder
+    100006: Lamp
+    100008: Plane
     400000: //RootNode
-    400002: Cylinder
-    400004: Plane
+    400002: Camera
+    400004: Cylinder
+    400006: Lamp
+    400008: Plane
     2300000: Cylinder
     2300002: Plane
     3300000: Cylinder
@@ -18,7 +22,7 @@ ModelImporter:
     7400000: Default Take
     9500000: //RootNode
   materials:
-    importMaterials: 0
+    importMaterials: 1
     materialName: 0
     materialSearch: 1
   animations:
@@ -35,7 +39,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: .00999999978
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1
