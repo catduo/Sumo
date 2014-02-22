@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	private Transform modifiers;
-	public static Dictionary<JoviosUserID, int> score = new Dictionary<JoviosUserID, int>();
+	public static Dictionary<int, float> score = new Dictionary<int, float>();
 	public static int[] winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 	public static GameObject chosenArena;
 	public static GameObject[] arenas;
@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public static float bonusSpawnTimer = 0;
 	public GameObject statusObject;
 	public static Jovios jovios;
+	public Material selectedArenaTile;
+	public Material deselectedArenaTile;
 	
 	void Awake(){
 		jovios = Jovios.Create();
@@ -60,6 +62,10 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 		return false;
 	}
 	bool IJoviosPlayerListener.PlayerDisconnected(JoviosPlayer p){
+		Destroy(p.GetStatusObject());
+		for(int i = 0; i < jovios.GetPlayerCount(); i++){
+			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().SetMyPlayer(jovios.GetPlayer(i));
+		}
 		return false;
 	}
 	
@@ -74,9 +80,6 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public static void EndRound(){
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
-		foreach (JoviosUserID thisjUID in score.Keys){
-			score[thisjUID] = 0;
-		}
 		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
 		controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
 		jovios.SetControls(controllerStyle);
@@ -85,6 +88,11 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().checkMark.renderer.enabled = false;
 		}
+		Dictionary<int, float> newScore = new Dictionary<int, float>();
+		foreach (KeyValuePair<int, float> kvp in score){
+			newScore.Add(kvp.Key, 0);
+		}
+		score = newScore;
 	}
 	
 	public static void ChooseArena(int selectedArena){

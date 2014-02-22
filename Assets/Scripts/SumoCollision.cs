@@ -19,9 +19,12 @@ public class SumoCollision : MonoBehaviour {
 	
 	void Update(){
 		if(is_ringOut){
+			if(MenuManager.gameState == GameState.SuddenDeath){
+				Destroy(transform.parent.gameObject);
+			}
 			if(ringOutDuration + ringOutTime < Time.time){
 				is_ringOut = false;
-				transform.position = new Vector3(Random.value * 4, Random.value * 4, 0.5F);
+				transform.position = GameObject.Find("PlayerSpawners").transform.GetChild(Mathf.FloorToInt(GameObject.Find("PlayerSpawners").transform.childCount * Random.value)).transform.position;
 				rigidbody.velocity = Vector3.zero;
 				rigidbody.angularVelocity = Vector3.zero;
 				transform.parent.GetComponent<Sumo>().boostDuration = 2;
@@ -35,19 +38,35 @@ public class SumoCollision : MonoBehaviour {
 	void OnCollisionEnter(Collision collision){
 		switch(collision.transform.name){
 		case "Arena1Platform":
-			collision.transform.renderer.enabled = true;
+			for(int i = 0; i < GameObject.Find("Arena1").transform.childCount; i ++){
+				if(GameObject.Find("Arena1").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena1").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
+				}
+			}
 			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 1;
 			break;
 		case "Arena2Platform":
-			collision.transform.renderer.enabled = true;
+			for(int i = 0; i < GameObject.Find("Arena2").transform.childCount; i ++){
+				if(GameObject.Find("Arena2").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena2").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
+				}
+			}
 			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 2;
 			break;
 		case "Arena3Platform":
-			collision.transform.renderer.enabled = true;
+			for(int i = 0; i < GameObject.Find("Arena3").transform.childCount; i ++){
+				if(GameObject.Find("Arena3").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena3").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
+				}
+			}
 			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 3;
 			break;
 		case "Arena4Platform":
-			collision.transform.renderer.enabled = true;
+			for(int i = 0; i < GameObject.Find("Arena4").transform.childCount; i ++){
+				if(GameObject.Find("Arena4").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena4").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
+				}
+			}
 			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 4;
 			break;
 		case "Platform":
@@ -55,11 +74,11 @@ public class SumoCollision : MonoBehaviour {
 			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 0;
 			break;
 		case "Rampage":
-			lastPlayerHit = collision.transform.parent.GetComponent<Sumo>().playerNumber;
+			lastPlayerHit = collision.transform.parent.GetComponent<Sumo>().myPlayer.GetIDNumber();
 			rigidbody.velocity = (collision.transform.localScale.x * (transform.position - collision.transform.position) * 100 / transform.parent.GetComponent<Sumo>().defense);
 			break;
 		case "Hand":
-			if(collision.transform.GetComponent<Projectile>().playerNumber != transform.parent.GetComponent<Sumo>().playerNumber){
+			if(collision.transform.GetComponent<Projectile>().playerNumber != transform.parent.GetComponent<Sumo>().myPlayer.GetIDNumber()){
 				lastPlayerHit = collision.transform.GetComponent<Projectile>().playerNumber;
 				rigidbody.velocity = (collision.transform.localScale.x * (transform.position - collision.transform.position) * 100 / transform.parent.GetComponent<Sumo>().defense);
 				if(!collision.transform.GetComponent<Projectile>().is_fired){
@@ -78,16 +97,33 @@ public class SumoCollision : MonoBehaviour {
 	void OnCollisionExit(Collision collision){
 		switch(collision.transform.name){
 		case "Arena1Platform":
-			collision.transform.renderer.enabled = false;
+			for(int i = 0; i < GameObject.Find("Arena1").transform.childCount; i ++){
+				if(GameObject.Find("Arena1").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena1").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
+				}
+			}
 			break;
 		case "Arena2Platform":
-			collision.transform.renderer.enabled = false;
+			for(int i = 0; i < GameObject.Find("Arena2").transform.childCount; i ++){
+				if(GameObject.Find("Arena2").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena2").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
+				}
+			}
 			break;
 		case "Arena3Platform":
+			for(int i = 0; i < GameObject.Find("Arena3").transform.childCount; i ++){
+				if(GameObject.Find("Arena3").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena3").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
+				}
+			}
 			collision.transform.renderer.enabled = false;
 			break;
 		case "Arena4Platform":
-			collision.transform.renderer.enabled = false;
+			for(int i = 0; i < GameObject.Find("Arena4").transform.childCount; i ++){
+				if(GameObject.Find("Arena4").transform.GetChild(i).name == "Plane"){
+					GameObject.Find("Arena4").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
+				}
+			}
 			break;
 		default:
 			break;
@@ -106,22 +142,22 @@ public class SumoCollision : MonoBehaviour {
 				rigidbody.velocity = new Vector3(rigidbody.velocity.x/4, rigidbody.velocity.y/4,0);
 				transform.parent.GetComponent<Sumo>().attackPower = 0;
 				if(lastPlayerHit > -1){
-					GameManager.score[jovios.GetPlayer(lastPlayerHit).GetUserID()]++;
+					GameManager.score[lastPlayerHit]++;
 					if(GameManager.winner[0] > -1){
-						if(GameManager.score[jovios.GetPlayer(lastPlayerHit).GetUserID()] > GameManager.score[jovios.GetPlayer(GameManager.winner[0]).GetUserID()] || GameManager.winner[0] == lastPlayerHit){
+						if(GameManager.score[lastPlayerHit] > GameManager.score[GameManager.winner[0]] || GameManager.winner[0] == lastPlayerHit){
 							for(int i = 0; i < jovios.GetPlayerCount(); i++){
 								jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = false;
 								jovios.GetPlayer(i).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = false;
 							}
 							GameManager.winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 							GameManager.winner[0] = lastPlayerHit;
-							jovios.GetPlayer(lastPlayerHit).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
-							jovios.GetPlayer(lastPlayerHit).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
+							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
+							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
 						}
-						else if(GameManager.score[jovios.GetPlayer(lastPlayerHit).GetUserID()] == GameManager.score[jovios.GetPlayer(GameManager.winner[0]).GetUserID()]){
+						else if(GameManager.score[lastPlayerHit] == GameManager.score[GameManager.winner[0]]){
 							int j = 0;
-							jovios.GetPlayer(lastPlayerHit).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
-							jovios.GetPlayer(lastPlayerHit).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
+							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
+							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
 							for(int i = 0; i < GameManager.winner.Length; i++){
 								if(GameManager.winner[i] == -1){
 									j = i;
@@ -133,10 +169,10 @@ public class SumoCollision : MonoBehaviour {
 					}
 					else{
 						GameManager.winner[0] = lastPlayerHit;
-						jovios.GetPlayer(lastPlayerHit).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
-						jovios.GetPlayer(lastPlayerHit).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
+						jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
+						jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
 					}
-					jovios.GetPlayer(lastPlayerHit).GetStatusObject().GetComponent<Status>().score.text = GameManager.score[jovios.GetPlayer(lastPlayerHit).GetUserID()].ToString();
+					jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().score.text = GameManager.score[lastPlayerHit].ToString();
 					lastPlayerHit = -1;
 				}
 				break;
@@ -158,11 +194,6 @@ public class SumoCollision : MonoBehaviour {
 	void OnTriggerStay(Collider other){
 		if(transform.parent != other.transform.parent){
 			switch(other.transform.name){
-			case "Hand":
-				lastPlayerHit = other.transform.parent.GetComponent<Sumo>().playerNumber;
-				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 100 / transform.parent.GetComponent<Sumo>().defense);
-				other.transform.parent.GetComponent<Sumo>().attackPower = 0;
-				break;
 			case "Bumper":
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);
 				break;

@@ -2,7 +2,15 @@ fileFormatVersion: 2
 guid: 32e59d09e21cd4fe48a0a901b60bb3aa
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - font: {instanceID: 0}
+  - menuButton: {fileID: 2800000, guid: a692c2ac17b1e904e8edce7f2c32c69e, type: 3}
+  - restartButton: {fileID: 2800000, guid: 0c3feef07c06bd041819592e3e8b00a4, type: 3}
+  - instructionButton: {fileID: 2800000, guid: fba415f604e2795458a49ca6b675a118, type: 3}
+  - resumeButton: {fileID: 2800000, guid: 37f86c280e809094896c3c12da89e3f6, type: 3}
+  - menuSlider: {fileID: 2800000, guid: 7bfc0d77ed58f984da7a5ff7b05e8abf, type: 3}
+  - menuBackground: {fileID: 2800000, guid: b19f5c96d0824204495b6068dde9832c, type: 3}
+  - menuX: {fileID: 2800000, guid: 3bad68334d722bd43b2e8766cba5d00e, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

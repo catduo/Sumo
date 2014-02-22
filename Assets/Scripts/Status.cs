@@ -41,24 +41,25 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				transform.FindChild("Rampage").renderer.enabled = false;
 				transform.FindChild("Speed").renderer.enabled = false;
 				transform.FindChild("Strength").renderer.enabled = false;
-				if(jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().activeBoost != BonusType.None){
-					transform.FindChild(jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().activeBoost.ToString()).renderer.enabled = true;
+				if(jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().activeBoost != BonusType.None){
+					transform.FindChild(jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().activeBoost.ToString()).renderer.enabled = true;
 				}
 			}
 		}
 	}
 	
 	public void SetMyPlayer (JoviosPlayer playerInfo){
+		jovios = GameManager.jovios;
+		myPlayer = playerInfo.GetUserID();
+		playerNumber = playerInfo.GetPlayerNumber();
+		if(!GameManager.score.ContainsKey(myPlayer.GetIDNumber())){
+			GameManager.score.Add(myPlayer.GetIDNumber(), 0);
+		}
+		transform.parent = GameObject.Find ("PlayerStatus").transform;
 		if(!is_ready){
-			jovios = GameManager.jovios;
-			playerNumber = jovios.GetPlayerCount() - 1;
-			transform.parent = GameObject.Find ("PlayerStatus").transform;
-			if(playerNumber < 4){
-				transform.localPosition = new Vector3(-4.5F + (playerNumber -1) * 4, -1.75F, 0);
-			}
-			else{
-				transform.localPosition = new Vector3(-4.5F + (playerNumber -5) * 4, -3F, 0);
-			}
+			JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
+			controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
+			jovios.SetControls(myPlayer, controllerStyle);
 			transform.localRotation = Quaternion.identity;
 			body = transform.FindChild("Primary");
 			score = transform.FindChild("Score").GetComponent<TextMesh>();
@@ -69,15 +70,19 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			checkMark.renderer.enabled = false;
 			crown.renderer.enabled = false;
 			score.text = "";
-			GameManager.score.Add(jovios.GetPlayer(playerNumber).GetUserID(), 0);
-			jovios.AddControllerListener(this, playerInfo.GetUserID());
+			jovios.AddControllerListener(this, myPlayer);
+		}
+		if(playerNumber < 4){
+			transform.localPosition = new Vector3(-4.5F + (playerNumber -1) * 4, -1.75F, 0);
+		}
+		else{
+			transform.localPosition = new Vector3(-4.5F + (playerNumber -5) * 4, -3F, 0);
 		}
 		transform.FindChild("Immunity").renderer.enabled = false;
 		transform.FindChild("Range").renderer.enabled = false;
 		transform.FindChild("Rampage").renderer.enabled = false;
 		transform.FindChild("Speed").renderer.enabled = false;
 		transform.FindChild("Strength").renderer.enabled = false;
-		myPlayer = jovios.GetPlayer(playerNumber).GetUserID();
 		playerNumber = playerInfo.GetPlayerNumber();
 		primary = playerInfo.GetColor("primary");
 		secondary = playerInfo.GetColor("secondary");
@@ -93,13 +98,8 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		character.color = secondary;
 		character.text = playerCharacter;
 		body.renderer.material.color = primary;
-		if(jovios.GetPlayer(playerNumber).PlayerObjectCount() > 0){
-			jovios.GetPlayer(playerNumber).GetPlayerObject().GetComponent<Sumo>().SetMyPlayer(playerInfo);
-		}
-		if(!is_ready){
-			JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-			controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
-			jovios.SetControls(myPlayer, controllerStyle);
+		if(jovios.GetPlayer(myPlayer).PlayerObjectCount() > 0){
+			jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().SetMyPlayer(playerInfo);
 		}
 	}
 	
@@ -160,13 +160,13 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	public void Ready(){
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = true;
-		if(jovios.GetPlayer(playerNumber).PlayerObjectCount() == 0){
+		if(jovios.GetPlayer(myPlayer).PlayerObjectCount() == 0){
 			GameObject newPlayerObject = (GameObject) GameObject.Instantiate(playerObject, new Vector3(0,-4,0.5F), Quaternion.identity);
 			newPlayerObject.transform.RotateAround(Vector3.zero, Vector3.forward, 360 - 360 / (playerNumber + 1) * jovios.GetPlayerCount());
 			newPlayerObject.transform.Rotate(new Vector3(0, 0, - 360 + 360 / (playerNumber + 1) * jovios.GetPlayerCount()));
 			newPlayerObject.transform.parent = GameObject.Find ("PlayerObjects").transform;
-			newPlayerObject.GetComponent<Sumo>().SetMyPlayer(jovios.GetPlayer(playerNumber));
-			jovios.GetPlayer(playerNumber).AddPlayerObject(newPlayerObject);
+			newPlayerObject.GetComponent<Sumo>().SetMyPlayer(jovios.GetPlayer(myPlayer));
+			jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
 		}
 		is_ready = true;
 	}

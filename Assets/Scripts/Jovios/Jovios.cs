@@ -42,10 +42,10 @@ public class Jovios : MonoBehaviour {
 	}
 	
 	//this will start the game server so that players can start connections.
-	public void StartServer(){
+	public void StartServer(string thisGameName = ""){
 		switch(networkingState){
 		case JoviosNetworkingState.Unity:
-			gameObject.GetComponent<JoviosUnityNetworking>().StartServer();
+			gameObject.GetComponent<JoviosUnityNetworking>().StartServer(thisGameName);
 			break;
 		default:
 			
@@ -97,7 +97,12 @@ public class Jovios : MonoBehaviour {
 	//This will be called by the connection scripts and will manage player connections
 	public void PlayerConnected(int playerNumber, float primaryR, float primaryG, float primaryB, float secondaryR, float secondaryG, float secondaryB, string playerName, int userID){
 		players.Add(new JoviosPlayer(players.Count, new JoviosUserID(userID), playerName, new Color(primaryR, primaryG, primaryB, 1), new Color(secondaryR, secondaryG, secondaryB, 1)));
-		userIDToPlayerNumber.Add(userID, playerNumber);
+		if(!userIDToPlayerNumber.ContainsKey(userID)){
+			userIDToPlayerNumber.Add(userID, playerNumber);
+		}
+		else{
+			userIDToPlayerNumber[userID] = playerNumber;
+		}
 		if(networkingState == JoviosNetworkingState.Unity){
 			gameObject.GetComponent<JoviosUnityNetworking>().SetNetworkPlayer(playerNumber);
 		}
@@ -120,6 +125,12 @@ public class Jovios : MonoBehaviour {
 	
 	// this will trigger when a player disconnects,
 	public void PlayerDisconnected(JoviosPlayer p){
+		players.Remove(p);
+		userIDToPlayerNumber.Remove(p.GetUserID().GetIDNumber());
+		for(int i = 0; i < userIDToPlayerNumber.Count; i++){
+			userIDToPlayerNumber[GetPlayer(i).GetUserID().GetIDNumber()] = i;
+			players[i].NewPlayerInfo(i, players[i].GetPlayerName(), players[i].GetColor("primary"), players[i].GetColor("secondary"));
+		}
 		for(int i = 0; i < p.PlayerObjectCount(); i++){
 			Destroy(p.GetPlayerObject(i));
 		}
@@ -128,8 +139,6 @@ public class Jovios : MonoBehaviour {
 				break;
 			}
 		}
-		players.Remove(p);
-		userIDToPlayerNumber.Remove(p.GetUserID().GetIDNumber());
     }
 	
 	

@@ -37,15 +37,10 @@ public class JoviosUnityNetworking : MonoBehaviour {
 	}
 
 	//this starts the unity server
-    public void StartServer(int maxPlayers = 32, int portNumber = 25000){
+	public void StartServer(string thisGameName){
 		Application.runInBackground = true;
-        Network.InitializeServer(32, 25000, !Network.HavePublicAddress());
-		if(Application.isWebPlayer){
-			Application.ExternalCall("GetGameName");
-		}
-		else{
-			SetGameName("bbbb");
-		}
+        Network.InitializeServer(32, 25008, !Network.HavePublicAddress());
+		SetGameName(thisGameName);
     } 
 
 	//this is the external IP gained from either the website or the unity system
@@ -81,8 +76,8 @@ public class JoviosUnityNetworking : MonoBehaviour {
 	}
 
 	//this sets the gamename
-	private void SetGameName(string newGameName){
-		if(newGameName.Length == 4){
+	public void SetGameName(string newGameName){
+		if(newGameName.Length >= 4){
 			gameName = newGameName;
 		}
 		else{

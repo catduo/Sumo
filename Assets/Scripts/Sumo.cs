@@ -18,7 +18,7 @@ public class Sumo : MonoBehaviour {
 	private float attackDuration = 0.2F;
 	public bool is_attacking = false;
 	
-	private NetworkPlayer myPlayer;
+	public JoviosUserID myPlayer;
 	public int playerNumber;
 	public string playerName;
 	private Color primary;
@@ -206,7 +206,7 @@ public class Sumo : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		if(!body.GetComponent<SumoCollision>().is_ringOut && (MenuManager.gameState == GameState.ChooseArena || MenuManager.gameState == GameState.GameOn)){	
+		if(!body.GetComponent<SumoCollision>().is_ringOut && (MenuManager.gameState == GameState.ChooseArena || MenuManager.gameState == GameState.GameOn || MenuManager.gameState == GameState.SuddenDeath)){	
 			if(is_strong){
 				hand.GetComponent<Projectile>().Strong();
 			}
@@ -270,7 +270,7 @@ public class Sumo : MonoBehaviour {
 	}
 	
 	public void SetMyPlayer (JoviosPlayer player){
-		myPlayer = player.GetNetworkPlayer();
+		myPlayer = player.GetUserID();
 		playerNumber = player.GetPlayerNumber();
 		primary = player.GetColor("primary");
 		secondary = player.GetColor("secondary");

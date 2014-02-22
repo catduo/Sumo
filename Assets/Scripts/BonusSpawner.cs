@@ -22,6 +22,9 @@ public class BonusSpawner : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if(MenuManager.gameState == GameState.SuddenDeath){
+			bonusType = BonusType.None;
+		}
 		if(bonusType != BonusType.None){
 			bonusBox.collider.enabled = true;
 			bonusBox.localPosition = new Vector3(0, 0, Mathf.Sin(Time.time)/6 + 0.3F);

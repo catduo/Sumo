@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		playerNumber = transform.parent.GetComponent<Sumo>().myPlayer.GetIDNumber();
 		gameObject.GetComponent<LineRenderer>().enabled = false;
 	}
 	
