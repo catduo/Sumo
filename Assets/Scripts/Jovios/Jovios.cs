@@ -111,10 +111,10 @@ public class Jovios : MonoBehaviour {
 			userIDToPlayerNumber[userID] = playerNumber;
 		}
 		if(networkingState == JoviosNetworkingState.Unity){
-			gameObject.GetComponent<JoviosUnityNetworking>().SetNetworkPlayer(playerNumber);
+			gameObject.GetComponent<JoviosUnityNetworking>().SetNetworkPlayer(userID, playerNumber);
 		}
 		foreach(IJoviosPlayerListener listener in playerListeners){
-			if(listener.PlayerConnected(players[playerNumber])){
+			if(listener.PlayerConnected(GetPlayer(new JoviosUserID(userID)))){
 				break;
 			}
 		}

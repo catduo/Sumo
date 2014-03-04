@@ -6,7 +6,7 @@ using System.Collections;
 public class Sumo : MonoBehaviour {
 
 	public float scale = 1;
-	public float speed = 1;
+	public float speed = 0.7F;
 	public float strength = 1;
 	public float range = 1;
 	public float defense = 1;
@@ -89,7 +89,7 @@ public class Sumo : MonoBehaviour {
 		if(is_boostActive){
 			is_boostActive = false;
 			scale = 1;
-			speed = 1;
+			speed = 0.7F;
 			range = 1;
 			strength = 1;
 			defense = 1;
@@ -106,7 +106,7 @@ public class Sumo : MonoBehaviour {
 			is_rampage = false;
 			switch(activeBoost){
 			case BonusType.Speed:
-				speed = 1.5F;
+				speed = 1.2F;
 				break;
 			
 			case BonusType.Immunity:
@@ -119,7 +119,7 @@ public class Sumo : MonoBehaviour {
 			case BonusType.Rampage:
 				scale = 1.5F;
 				defense = 3;
-				speed = 1.2F;
+				speed = 0.8F;
 				is_rampage = true;
 				metal = Color.red;
 				body.transform.name = "Rampage";
@@ -131,7 +131,7 @@ public class Sumo : MonoBehaviour {
 			
 			case BonusType.Range:
 				is_range = true;
-				range = 2;
+				range = 4;
 				break;
 			}
 			robot = body.FindChild("Robot1");
@@ -164,7 +164,7 @@ public class Sumo : MonoBehaviour {
 			primary = new Color(primary.r, primary.g, primary.b, 1);
 			secondary = new Color(secondary.r, secondary.g, secondary.b, 1);
 			scale = 1;
-			speed = 1;
+			speed = 0.7F;
 			range = 1;
 			strength = 1;
 			defense = 1;

@@ -106,8 +106,8 @@ public class JoviosUnityNetworking : MonoBehaviour {
 		networkPlayerCount ++;
 		//networkView.RPC ("PlayerObjectCreated", player, jovios.GetPlayerCount());
 	}
-	public void SetNetworkPlayer(int playerNumber){
-		jovios.GetPlayer(playerNumber).SetNetworkPlayer(networkPlayers[playerNumber]);
+	public void SetNetworkPlayer(int userID, int playerNumber){
+		jovios.GetPlayer(new JoviosUserID(userID)).SetNetworkPlayer(networkPlayers[playerNumber]);
 	}   
 	
 	
