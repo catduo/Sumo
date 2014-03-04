@@ -207,37 +207,36 @@ public class Sumo : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 		if(!body.GetComponent<SumoCollision>().is_ringOut && (MenuManager.gameState == GameState.ChooseArena || MenuManager.gameState == GameState.GameOn || MenuManager.gameState == GameState.SuddenDeath)){	
-			if(is_strong){
-				hand.GetComponent<Projectile>().Strong();
-			}
-			else if(is_rampage){
-				hand.FindChild("Sphere").renderer.enabled = false;
-				hand.collider.enabled = false;
-			}
-			else{
-				hand.GetComponent<Projectile>().Normal();
-			}
-			if(body.rigidbody.velocity.magnitude < 1){
-				body.rigidbody.velocity = new Vector3(0, 0, body.rigidbody.velocity.z);
-			}
-			else{
-				body.rigidbody.velocity *= 0.95F;
-			}
-			if(jovios.GetPlayer(playerNumber).GetInput("right").GetDirection() != Vector2.zero){
-				if(!is_attacking){
-					attackPower++;
+			if(MenuManager.gameState != GameState.ChooseArena){
+				if(is_strong){
+					hand.GetComponent<Projectile>().Strong();
 				}
-				if(jovios.GetPlayer(playerNumber).GetInput("right").GetDirection().y > 0){
-					body.eulerAngles = new Vector3(body.eulerAngles.y, body.eulerAngles.x, Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()) - 90);
+				else if(is_rampage){
+					hand.FindChild("Sphere").renderer.enabled = false;
+					hand.collider.enabled = false;
 				}
 				else{
-					body.eulerAngles = new Vector3(body.eulerAngles.y, body.eulerAngles.x, - Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetInput("right").GetDirection()) - 90);
+					hand.GetComponent<Projectile>().Normal();
+				}
+				if(body.rigidbody.velocity.magnitude < 1){
+					body.rigidbody.velocity = new Vector3(0, 0, body.rigidbody.velocity.z);
+				}
+				else{
+					body.rigidbody.velocity *= 0.95F;
+				}
+				if(jovios.GetPlayer(playerNumber).GetControllerStyle().GetDirection("right").GetDirection() != Vector2.zero){
+					if(!is_attacking){
+						attackPower++;
+					}
+					if(jovios.GetPlayer(playerNumber).GetControllerStyle().GetDirection("right").GetDirection().y > 0){
+						body.eulerAngles = new Vector3(body.eulerAngles.y, body.eulerAngles.x, Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetControllerStyle().GetDirection("right").GetDirection()) - 90);
+					}
+					else{
+						body.eulerAngles = new Vector3(body.eulerAngles.y, body.eulerAngles.x, - Vector2.Angle(new Vector2(1,0), jovios.GetPlayer(playerNumber).GetControllerStyle().GetDirection("right").GetDirection()) - 90);
+					}
 				}
 			}
-			else if(attackPower > 0 && !is_attacking){
-				Attack();
-			}
-			transform.Translate( new Vector3(speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().x, speed / 10 * jovios.GetPlayer(playerNumber).GetInput("left").GetDirection().y, 0));
+			transform.Translate( new Vector3(speed / 10 * jovios.GetPlayer(playerNumber).GetControllerStyle().GetDirection("left").GetDirection().x, speed / 10 * jovios.GetPlayer(playerNumber).GetControllerStyle().GetDirection("left").GetDirection().y, 0));
 			body.rigidbody.angularVelocity = Vector3.zero;
 			float handScale = Mathf.Min (0.5F * strength, (0.4F * attackPower / attackMax + 0.2F) * strength);
 			hand.localScale = new Vector3(handScale, handScale, handScale);
@@ -302,6 +301,8 @@ public class Sumo : MonoBehaviour {
 	}
 
 	void OnDisable(){
-		jovios.GetPlayer(playerNumber).RemovePlayerObject(gameObject);
+		if(jovios.GetPlayer(playerNumber) != null){
+			jovios.GetPlayer(playerNumber).RemovePlayerObject(gameObject);
+		}
 	}
 }

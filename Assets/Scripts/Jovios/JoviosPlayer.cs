@@ -10,9 +10,6 @@ public class JoviosPlayer{
 	public JoviosPlayer(int pNumber, JoviosUserID pUserID, string pName, Color pPrimary, Color pSecondary){
 		playerNumber = pNumber;
 		playerName = pName;
-		right = new JoviosInput();
-		left = new JoviosInput();
-		accelerometer = new JoviosInput();
 		primary = pPrimary;
 		secondary = pSecondary;
 		userID = pUserID;
@@ -54,7 +51,12 @@ public class JoviosPlayer{
 	//this is a list of player objects that will get deleted when the player disconnects
 	private List<GameObject> playerObject = new List<GameObject>();
 	public GameObject GetPlayerObject(int index = 0){
-		return playerObject[index];
+		if(playerObject.Count > index){
+			return playerObject[index];
+		}
+		else{
+			return null;
+		}
 	}
 	public int PlayerObjectCount(){
 		return playerObject.Count;
@@ -65,7 +67,7 @@ public class JoviosPlayer{
 	}
 	public int RemovePlayerObject(GameObject newPlayerObject){
 		playerObject.Remove(newPlayerObject);
-		return playerObject.Count - 1;
+		return playerObject.Count;
 	}
 	//this is the number associated with the specific device being used
 	private JoviosUserID userID;
@@ -99,27 +101,6 @@ public class JoviosPlayer{
 		default:
 			Debug.Log("could not find color " + color);
 			return Color.clear;
-			break;
-		}
-	}
-	//these are the three inputs that get constantly set
-	private JoviosInput left;
-	private JoviosInput right;
-	private JoviosInput accelerometer;
-	public JoviosInput GetInput(string position){
-		switch(position){
-		case "left":
-			return left;
-			break;
-		case "right":
-			return right;
-			break;
-		case "accelerometer":
-			return accelerometer;
-			break;
-		default:
-			Debug.Log("could not find input " + position);
-			return null;
 			break;
 		}
 	}

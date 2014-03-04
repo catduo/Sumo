@@ -24,7 +24,7 @@ public class MenuManager : MonoBehaviour {
 	private float musicVolume = 1;
 	private float sfxVolume = 1;
 	
-	static public int roundDuration = 120;
+	static public int roundDuration = 180;
 	private float roundStart;
 	
 	private bool is_roundStarted = false;
@@ -147,19 +147,13 @@ public class MenuManager : MonoBehaviour {
 			GUI.Label(new Rect(Screen.width * 7/10 - GUI.skin.label.fontSize * 0.25F,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width*3/10,Screen.height/8), "Time Left\n" + timer.ToString());
 			if(timer < 1){
 				if(GameManager.winner[1] > -1){
-					gameState = GameState.SuddenDeath;
-					for(int i = 0; i < jovios.GetPlayerCount(); i++){
-						JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-						controllerStyle.SetBasicButtons("Sudden Death", new string[] {});
-						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
-					}
 					for(int i = 0; i < GameManager.winner.Length; i++){
 						if(i < 0){
 							break;
 						}
 						JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-						controllerStyle.AddAbsoluteJoystick("left", "Move Character by tapping and swiping");
-						controllerStyle.AddAbsoluteJoystick("right", "Aim by Moving\nHold to Charge\nRelease to Fire");
+						controllerStyle.AddJoystick(new Vector2(-1.3F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "left");
+						controllerStyle.AddJoystick(new Vector2(1.3F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "right");
 						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
 					}
 				}
@@ -168,7 +162,7 @@ public class MenuManager : MonoBehaviour {
 					gameState = GameState.GameEnd;
 					for(int i = 0; i < jovios.GetPlayerCount(); i++){
 						JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-						controllerStyle.SetBasicButtons("Would you like to play this game again?", new string[] {"Play Again!"});
+						controllerStyle.AddButton1(Vector2.zero, new Vector2(2, 0.6F), "mc", "Play!", "Play Again!");
 						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
 					}
 					Transform po = GameObject.Find ("PlayerObjects").transform;
@@ -201,7 +195,7 @@ public class MenuManager : MonoBehaviour {
 				gameState = GameState.GameEnd;
 				for(int i = 0; i < jovios.GetPlayerCount(); i++){
 					JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-					controllerStyle.SetBasicButtons("Would you like to play this game again?", new string[] {"Play Again!"});
+					controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Build my Robot (robot appears on main screen)", "Join Game");
 					jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
 				}
 				Transform po = GameObject.Find ("PlayerObjects").transform;

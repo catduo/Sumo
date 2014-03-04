@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 				newStatusObject.GetComponent<Status>().is_ready = false;
 			}
 		}
+		Debug.Log (p.GetPlayerName());
 		if(newStatusObject == null){
 			newStatusObject = (GameObject) GameObject.Instantiate(statusObject, Vector3.zero, Quaternion.identity);
 		}
@@ -70,6 +71,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	public static void StartRound(){
+		winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
 			if(jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().is_ready){
 				jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().StartRound();
@@ -81,7 +83,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
 		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-		controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
+		controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Build my Robot (robot appears on main screen)", "Join Game");
 		jovios.SetControls(controllerStyle);
 		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){

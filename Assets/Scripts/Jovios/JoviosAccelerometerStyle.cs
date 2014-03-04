@@ -1,6 +1,6 @@
 using System;
 
-public enum JoviosControllerAccelerometerStyle{
+public enum JoviosAccelerometerStyle{
 	None,
 	Steering,
 	Shake,

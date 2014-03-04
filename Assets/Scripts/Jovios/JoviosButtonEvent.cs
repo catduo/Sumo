@@ -6,16 +6,21 @@ using System.Net.Sockets;
 using System;
 
 public class JoviosButtonEvent {
-	public JoviosButtonEvent(string buttonIn, JoviosControllerStyle controllerStyle, string thisSide, string actionIn = "", string typeIn = ""){
+	public JoviosButtonEvent(string buttonIn, JoviosControllerStyle controllerStyle, string actionIn = "", string typeIn = ""){
 		response = buttonIn;
 		style = controllerStyle;
-		side = thisSide;
 		action = actionIn;
+		type = typeIn;
 	}
 	//the side is right or left, but will eventually be supporting arbitrary deffinitions and will change to locations instead of side.
 	private string side;
 	public string GetSide(){
 		return side;
+	}
+	//the side is right or left, but will eventually be supporting arbitrary deffinitions and will change to locations instead of side.
+	private string type;
+	public string GetType(){
+		return type;
 	}
 	//the response is the string defined by the game as what the game should be listening for.  this is not the description, but should be associated with it
 	private string response;

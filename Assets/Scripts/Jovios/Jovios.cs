@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System;
+using JoviosSimpleJSON;
 
 //TODO List
 //take in array of userids to change player ordering
@@ -98,7 +99,13 @@ public class Jovios : MonoBehaviour {
 	public void PlayerConnected(int playerNumber, float primaryR, float primaryG, float primaryB, float secondaryR, float secondaryG, float secondaryB, string playerName, int userID){
 		players.Add(new JoviosPlayer(players.Count, new JoviosUserID(userID), playerName, new Color(primaryR, primaryG, primaryB, 1), new Color(secondaryR, secondaryG, secondaryB, 1)));
 		if(!userIDToPlayerNumber.ContainsKey(userID)){
-			userIDToPlayerNumber.Add(userID, playerNumber);
+			Debug.Log(userID);
+			Debug.Log (playerNumber);
+			Debug.Log(players.Count - 1);
+			userIDToPlayerNumber.Add(userID, players.Count - 1);
+			packetJSON.Add(userID, "");
+			networkingStates.Add(userID, JoviosNetworkingState.Unity);
+			connectionJSON.Add(userID, "\"connection\":{}");
 		}
 		else{
 			userIDToPlayerNumber[userID] = playerNumber;
@@ -111,6 +118,8 @@ public class Jovios : MonoBehaviour {
 				break;
 			}
 		}
+		//string encodedString = "{\"packet\":{\"controlStyle\":[{\"type\": \"button1\", \"position\": [0.75,0.8,1.5,1.5], \"anchor\":\"bl\", \"response\": \"[left]\", \"content\": \"[string]\"},{\"type\": \"button4\", \"position\": [-0.75,1,1.5,2], \"anchor\":\"br\", \"response\": [\"Whats up?\",\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\",\"H\",\"Submit\",\"Cancel\"], \"content\": [\"Whats up?\",\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\",\"H\",\"Submit\",\"Cancel\"]]}}}";
+		//networkView.RPC("SendPacket", GetPlayer(new JoviosUserID(userID)).GetNetworkPlayer(), encodedString);
 	}
 	
 	// this will be triggered when information about a player is updated, like colors or names
@@ -126,6 +135,9 @@ public class Jovios : MonoBehaviour {
 	// this will trigger when a player disconnects,
 	public void PlayerDisconnected(JoviosPlayer p){
 		players.Remove(p);
+		packetJSON.Remove(p.GetUserID().GetIDNumber());
+		networkingStates.Remove(p.GetUserID().GetIDNumber());
+		connectionJSON.Remove(p.GetUserID().GetIDNumber());
 		userIDToPlayerNumber.Remove(p.GetUserID().GetIDNumber());
 		for(int i = 0; i < userIDToPlayerNumber.Count; i++){
 			userIDToPlayerNumber[GetPlayer(i).GetUserID().GetIDNumber()] = i;
@@ -139,7 +151,15 @@ public class Jovios : MonoBehaviour {
 				break;
 			}
 		}
-    }
+	}
+	void OnPlayerDisconnected(NetworkPlayer player){
+		for(int i = 0; i < players.Count; i++){
+			if(players[i].GetNetworkPlayer() == player){
+				PlayerDisconnected(players[i]);
+				break;
+			}
+		}
+	}
 	
 	
 	//listening to each player's controller
@@ -194,48 +214,109 @@ public class Jovios : MonoBehaviour {
 	
 	//this will set the controlls of a given player
 	public void SetControls(JoviosUserID jUID, JoviosControllerStyle controllerStyle){
-		switch(networkingState){
-		case JoviosNetworkingState.Unity:
-			GetPlayer(jUID).SetControllerStyle(controllerStyle);
-			if(controllerStyle.IsSplitScreen()){
-				networkView.RPC ("SentControls", GetPlayer(jUID).GetNetworkPlayer(),(int)controllerStyle.GetAccelerometerStyle(), controllerStyle.GetAreaStyle("left").GetAreaType(), controllerStyle.GetAreaStyle("left").GetResponse()[0], controllerStyle.GetAreaStyle("left").GetDescription()[0], controllerStyle.GetAreaStyle("right").GetAreaType(), controllerStyle.GetAreaStyle("right").GetResponse()[0], controllerStyle.GetAreaStyle("right").GetDescription()[0], controllerStyle.GetBackgroundImage());
-				foreach(JoviosControllerAreaStyle arbitraryArea in controllerStyle.GetArbitraryAreaStyle()){
-					Debug.Log ("arbitrary set");
-					networkView.RPC ("SentArbitraryUIElement", GetPlayer(jUID).GetNetworkPlayer(), arbitraryArea.GetRect()[0], arbitraryArea.GetRect()[1], arbitraryArea.GetRect()[2], arbitraryArea.GetRect()[3], arbitraryArea.GetDescription()[0], arbitraryArea.GetResponse()[0]);
-				}
-			}
-			else{
-				networkView.RPC ("SentButtons", GetPlayer(jUID).GetNetworkPlayer(),(int)controllerStyle.GetAccelerometerStyle(), controllerStyle.GetOverallStyle().GetOverallType(), controllerStyle.GetOverallStyle().GetQuestionPrompt(),  controllerStyle.GetOverallStyle().GetSubmit(), controllerStyle.GetOverallStyle().GetResponse(0), controllerStyle.GetOverallStyle().GetResponse(1), controllerStyle.GetOverallStyle().GetResponse(2), controllerStyle.GetOverallStyle().GetResponse(3), controllerStyle.GetOverallStyle().GetResponse(4), controllerStyle.GetOverallStyle().GetResponse(5), controllerStyle.GetOverallStyle().GetResponse(6), controllerStyle.GetOverallStyle().GetResponse(7), controllerStyle.GetBackgroundImage());
-			}
-			break;
-			
-		default:
-			break;
-		}
+		GetPlayer(jUID).SetControllerStyle(controllerStyle);
+		AddToPacket(jUID, controllerStyle.GetJSON());
 	}
 	//this will set the controlls of all players
 	public void SetControls(JoviosControllerStyle controllerStyle){
 		foreach(JoviosPlayer player in players){
 			JoviosUserID jUID = player.GetUserID();
-			switch(networkingState){
-			case JoviosNetworkingState.Unity:
-				GetPlayer(jUID).SetControllerStyle(controllerStyle);
-				if(controllerStyle.IsSplitScreen()){
-					networkView.RPC ("SentControls", GetPlayer(jUID).GetNetworkPlayer(),(int)controllerStyle.GetAccelerometerStyle(), controllerStyle.GetAreaStyle("left").GetAreaType(), controllerStyle.GetAreaStyle("left").GetResponse()[0], controllerStyle.GetAreaStyle("left").GetDescription()[0], controllerStyle.GetAreaStyle("right").GetAreaType(), controllerStyle.GetAreaStyle("right").GetResponse()[0], controllerStyle.GetAreaStyle("right").GetDescription()[0], controllerStyle.GetBackgroundImage());
-					foreach(JoviosControllerAreaStyle arbitraryArea in controllerStyle.GetArbitraryAreaStyle()){
-						networkView.RPC ("SentArbitraryUIElement", GetPlayer(jUID).GetNetworkPlayer(), arbitraryArea.GetRect()[0], arbitraryArea.GetRect()[1], arbitraryArea.GetRect()[2], arbitraryArea.GetRect()[3], arbitraryArea.GetDescription()[0], arbitraryArea.GetResponse()[0]);
-					}
-				}
-				else{
-					networkView.RPC ("SentButtons", GetPlayer(jUID).GetNetworkPlayer(),(int)controllerStyle.GetAccelerometerStyle(), controllerStyle.GetOverallStyle().GetOverallType(), controllerStyle.GetOverallStyle().GetQuestionPrompt(),  controllerStyle.GetOverallStyle().GetSubmit(), controllerStyle.GetOverallStyle().GetResponse(0), controllerStyle.GetOverallStyle().GetResponse(1), controllerStyle.GetOverallStyle().GetResponse(2), controllerStyle.GetOverallStyle().GetResponse(3), controllerStyle.GetOverallStyle().GetResponse(4), controllerStyle.GetOverallStyle().GetResponse(5), controllerStyle.GetOverallStyle().GetResponse(6), controllerStyle.GetOverallStyle().GetResponse(7), controllerStyle.GetBackgroundImage());
-				}
-				break;
-				
-			default:
-				break;
+			GetPlayer(jUID).SetControllerStyle(controllerStyle);
+			AddToPacket(jUID, controllerStyle.GetJSON());
+		}
+	}
+	
+	private Dictionary<int, string> packetJSON = new Dictionary<int, string>();
+	private Dictionary<int, JoviosNetworkingState> networkingStates = new Dictionary<int, JoviosNetworkingState>();
+	private Dictionary<int, string> connectionJSON = new Dictionary<int, string>();
+	//this sends out the packets as they are generated
+	void FixedUpdate(){
+		foreach(int key in userIDToPlayerNumber.Keys){
+			if(packetJSON[key] != ""){
+				packetJSON[key] += "}}";
+				//update to switch case by player for network connections other than unity networking
+				networkView.RPC("SendPacket", GetPlayer(new JoviosUserID(key)).GetNetworkPlayer(), packetJSON[key]);
+				packetJSON[key] = "";
 			}
 		}
 	}
+	public void AddToPacket(JoviosUserID jUID, string addition){
+		if(packetJSON[jUID.GetIDNumber()] == ""){
+			packetJSON[jUID.GetIDNumber()] += "{\"packet\":{" + addition;
+		}
+		else{
+			packetJSON[jUID.GetIDNumber()] += "," + addition;
+		}
+		Debug.Log (packetJSON[jUID.GetIDNumber()].ToString());
+		Debug.Log (jUID.GetIDNumber().ToString());
+	}
+	//this picks up the Unity Networking connections
+	[RPC] void SendPacket(string packet){
+		ParsePacket(packet);
+	}
+	//this parses the incoming packets
+	private void ParsePacket(string packet){
+		var myJSON = JSON.Parse(packet);
+		if(myJSON["packet"]["response"] != null){
+			for(int i = 0; i < myJSON["packet"]["response"].Count; i++){
+				switch(myJSON["packet"]["response"][i]["type"]){
+				case "button":
+					JoviosButtonEvent e = new JoviosButtonEvent(myJSON["packet"]["response"][i]["button"], GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerStyle(), myJSON["packet"]["response"][i]["action"]);
+					foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerListeners()){
+						if(listener.ButtonEventReceived(e)){
+							return;
+						}
+					}
+					break;
+					
+				case "direction":
+					switch(myJSON["packet"]["response"][i]["action"]){
+					case "hold":
+						GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerStyle().GetDirection(myJSON["packet"]["response"][i]["direction"]).SetDirection(new Vector2(myJSON["packet"]["response"][i]["position"][0].AsFloat, myJSON["packet"]["response"][i]["position"][1].AsFloat));
+						break;
+						
+					case "press":
+						JoviosButtonEvent e1 = new JoviosButtonEvent(myJSON["packet"]["response"][i]["direction"], GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerStyle(), myJSON["packet"]["response"][i]["action"]);
+						foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerListeners()){
+							if(listener.ButtonEventReceived(e1)){
+								return;
+							}
+						}
+						break;
+						
+					case "release":
+						JoviosButtonEvent e2 = new JoviosButtonEvent(myJSON["packet"]["response"][i]["direction"], GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerStyle(), myJSON["packet"]["response"][i]["action"]);
+						foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerListeners()){
+							if(listener.ButtonEventReceived(e2)){
+								return;
+							}
+						}
+						break;
+						
+					default:
+						break;
+					}
+					break;
+					
+				case "accelerometer":
+					var accInfo = myJSON["packet"]["response"][i]["values"];
+					GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerStyle().GetAccelerometer().SetGyro(new Quaternion(-accInfo[0].AsFloat, -accInfo[1].AsFloat, accInfo[2].AsFloat, accInfo[3].AsFloat));
+					GetPlayer(new JoviosUserID(myJSON["userID"].AsInt)).GetControllerStyle().GetAccelerometer().SetAcceleration(new Vector3(accInfo[4].AsFloat, accInfo[5].AsFloat, accInfo[6].AsFloat));
+					break;
+					
+				default:
+					Debug.Log ("wrong response type");
+					break;
+				}
+			}
+		}
+		if(myJSON["packet"]["playerConnected"] != null){
+			PlayerConnected(myJSON["packet"]["playerConnected"]["playerNumber"].AsInt, myJSON["packet"]["playerConnected"]["primaryR"].AsFloat, myJSON["packet"]["playerConnected"]["primaryG"].AsFloat, myJSON["packet"]["playerConnected"]["primaryB"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryR"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryG"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryB"].AsFloat, myJSON["packet"]["playerConnected"]["playerName"], myJSON["packet"]["playerConnected"]["userID"].AsInt);
+		}
+	}
+	//{"packet":{"response":{[{"action":"press","button":""}]}}}
+	//string encodedString = "{\"packet\":{\"controlStyle\":[{\"type\": \"joystick\", \"position\": [0.75,0.8,1.5,1.5], \"anchor\":\"bl\", \"response\": \"[left]\", \"content\": \"[string]\"},{\"type\": \"button4\", \"position\": [-0.75,1,1.5,2], \"anchor\":\"br\", \"response\": [\"Whats up?\",\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\",\"H\",\"Submit\",\"Cancel\"], \"content\": [\"Whats up?\",\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\",\"H\",\"Submit\",\"Cancel\"]]}}}";
+	
 	
 	//When a controller connects it will check the version so that it can know if the controller is out of date.  If the game is out of date the controller should still work with it (only 1.0.0 and greater)
 	private string version = "0.0.0";

@@ -13,6 +13,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	public Transform xMark;
 	public Transform crown;
 	public GameObject playerObject;
+	public GameObject myPlayerObject;
 	public TextMesh character;
 	public TextMesh score;
 	public bool is_ready = false;
@@ -23,7 +24,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	private Jovios jovios;
 	
 	bool IJoviosControllerListener.ButtonEventReceived(JoviosButtonEvent e){
-		OnButton(e.GetResponse());
+		OnButton(e.GetResponse(), e.GetAction());
 		return false;
 	}
 
@@ -58,7 +59,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		transform.parent = GameObject.Find ("PlayerStatus").transform;
 		if(!is_ready){
 			JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-			controllerStyle.SetBasicButtons("Would you like to play?", new string[] {"Join Game"});
+			controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Build my Robot (robot appears on main screen)", "Join Game");
 			jovios.SetControls(myPlayer, controllerStyle);
 			transform.localRotation = Quaternion.identity;
 			body = transform.FindChild("Primary");
@@ -103,52 +104,85 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		}
 	}
 	
-	private void OnButton(string button){
+	private void OnButton(string button, string action){
 		switch(button){
-		case "Join Game":
-			switch(MenuManager.gameState){
-			case GameState.Countdown:
-				Ready ();
-				StartRound();
+		case "left":
+			switch(action){
+			case "press":
 				break;
-			
-			case GameState.ChooseArena:
-				Ready ();
-				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
-				controllerStyle1.AddAbsoluteJoystick("left", "Move Character");
-				controllerStyle1.AddButton1("right", "Select Level", "Select Level");
-				jovios.SetControls(myPlayer, controllerStyle1);
-				break;
-				
-			case GameState.GameOn:
-				Ready ();
-				StartRound();
-				break;
-				
-			case GameState.GameEnd:
-				JoviosControllerStyle controllerStyle2 = new JoviosControllerStyle();
-				controllerStyle2.SetBasicButtons("Would you like to play this game again?", new string[] {"Play Again!"});
-				jovios.SetControls(myPlayer, controllerStyle2);
-				break;
-				
-			case GameState.Menu:
+
+			case "release":
+				jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").SetDirection(Vector2.zero);
 				break;
 			}
+			break;
+
+		case "right":
+			switch(action){
+			case "press":
+				break;
+				
+			case "release":
+				jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right").SetDirection(Vector2.zero);
+				myPlayerObject.GetComponent<Sumo>().Attack();
+				break;
+			default:
+				Debug.Log(action);
+				break;
+			}
+			break;
+
+		case "Join Game":
+			//if(action == "release"){
+				switch(MenuManager.gameState){
+				case GameState.Countdown:
+					Ready ();
+					StartRound();
+					break;
+					
+				case GameState.ChooseArena:
+					Ready ();
+					JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
+					controllerStyle1.AddJoystick(new Vector2(-1.3F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "left", "left");
+					controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Select the level my robot is standing on", "Select Level");
+					jovios.SetControls(myPlayer, controllerStyle1);
+					break;
+					
+				case GameState.GameOn:
+					Ready ();
+					StartRound();
+					break;
+					
+				case GameState.GameEnd:
+					JoviosControllerStyle controllerStyle2 = new JoviosControllerStyle();
+					controllerStyle2.AddButton1(Vector2.zero, new Vector2(2, 0.6F), "mc", "Play Again!", "Play Again!");
+					jovios.SetControls(myPlayer, controllerStyle2);
+					break;
+					
+				case GameState.Menu:
+					break;
+				}
+			//}
 			break;
 			
 		case "Play Again!":
-			if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown){
-				GameManager.EndRound();
+			if(action == "press"){
+				if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown){
+					GameManager.EndRound();
+				}
+				Ready ();
+				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
+				controllerStyle1.AddJoystick(new Vector2(-1.3F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "left");
+				controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Play!", "Select Level");
+				jovios.SetControls(myPlayer, controllerStyle1);
 			}
-			Ready ();
-			JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
-			controllerStyle1.AddAbsoluteJoystick("left", "Move Character");
-			controllerStyle1.AddButton1("right", "Select Level", "Select Level");
-			jovios.SetControls(myPlayer, controllerStyle1);
 			break;
 			
 		case "Select Level":
-			GameManager.ChooseArena(chosenArena);
+			if(action == "press"){
+				Debug.Log("select level");
+				GameManager.ChooseArena(chosenArena);
+			}
 			break;
 			
 		default:
@@ -167,6 +201,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			newPlayerObject.transform.parent = GameObject.Find ("PlayerObjects").transform;
 			newPlayerObject.GetComponent<Sumo>().SetMyPlayer(jovios.GetPlayer(myPlayer));
 			jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
+			myPlayerObject = newPlayerObject;
 		}
 		is_ready = true;
 	}
@@ -177,8 +212,8 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = false;
 		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-		controllerStyle.AddAbsoluteJoystick("left", "Move Character by tapping and swiping");
-		controllerStyle.AddAbsoluteJoystick("right", "Aim by Moving\nHold to Charge\nRelease to Fire");
+		controllerStyle.AddJoystick(new Vector2(-0.8F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "left");
+		controllerStyle.AddJoystick(new Vector2(0.8F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "right");
 		jovios.SetControls(myPlayer, controllerStyle);
 	}
 	

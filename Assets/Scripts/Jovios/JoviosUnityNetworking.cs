@@ -56,7 +56,7 @@ public class JoviosUnityNetworking : MonoBehaviour {
 		else{
 			externalIP = Network.player.externalIP;
 		}
-        MasterServer.RegisterHost(typeName, gameName + externalIP);
+		MasterServer.RegisterHost(typeName, gameName + ";" + externalIP + ";" + "aaaa");
         WWWForm form = new WWWForm();
         form.AddField("action","create");
         form.AddField ("name",gameName);
@@ -67,7 +67,8 @@ public class JoviosUnityNetworking : MonoBehaviour {
 		Debug.Log ("game name: " + gameName + ", ipAdress: " + externalIP);
 	}
 	private WWW wwwData = null;
-	private List<NetworkPlayer> networkPlayers = new List<NetworkPlayer>();
+	private Dictionary<int, NetworkPlayer> networkPlayers = new Dictionary<int, NetworkPlayer>();
+	private int networkPlayerCount = 0;
 	private const string typeName = "Jovios";
 
 	//this disconnects when the application quits
@@ -100,12 +101,10 @@ public class JoviosUnityNetworking : MonoBehaviour {
 
 	//this is the unity newtorkign connection and disconnection information
 	void OnPlayerConnected(NetworkPlayer player){
-		networkPlayers.Add(player);
-		networkView.RPC ("PlayerObjectCreated", player, jovios.GetPlayerCount());
-	}
-	void OnPlayerDisconnected(NetworkPlayer player){
-		jovios.PlayerDisconnected(jovios.GetPlayer(networkPlayers.IndexOf (player)));
-		networkPlayers.Remove(player);
+		networkView.RPC ("SendPacket",player,"{\"packet\":{\"playerNumber\":"+networkPlayerCount.ToString()+"}}");
+		networkPlayers.Add(networkPlayerCount, player);
+		networkPlayerCount ++;
+		//networkView.RPC ("PlayerObjectCreated", player, jovios.GetPlayerCount());
 	}
 	public void SetNetworkPlayer(int playerNumber){
 		jovios.GetPlayer(playerNumber).SetNetworkPlayer(networkPlayers[playerNumber]);
@@ -114,19 +113,19 @@ public class JoviosUnityNetworking : MonoBehaviour {
 	
 	//these are the rpc calls for the unity networking
 	[RPC] void GetDirection(int userID, float horizontal, float vertical, string side){
-		jovios.GetPlayer(new JoviosUserID(userID)).GetInput(side).SetDirection(new Vector2(horizontal, vertical));
+		//jovios.GetPlayer(new JoviosUserID(userID)).GetInput(side).SetDirection(new Vector2(horizontal, vertical));
 	}
 	[RPC] void GetAccelerometer(int userID, float gyroW, float gyroX, float gyroY, float gyroZ, float accX, float accY, float accZ){
-		jovios.GetPlayer(new JoviosUserID(userID)).GetInput("accelerometer").SetGyro(new Quaternion(-gyroX, -gyroY, gyroZ, gyroW));
-		jovios.GetPlayer(new JoviosUserID(userID)).GetInput("accelerometer").SetAcceleration(new Vector3(accX, accZ, accY));
+		//jovios.GetPlayer(new JoviosUserID(userID)).GetInput("accelerometer").SetGyro(new Quaternion(-gyroX, -gyroY, gyroZ, gyroW));
+		//jovios.GetPlayer(new JoviosUserID(userID)).GetInput("accelerometer").SetAcceleration(new Vector3(accX, accZ, accY));
 	}
 	[RPC] void GetTextResponse(int userID, string buttonPress, string side = "", string action = ""){
-		JoviosButtonEvent e = new JoviosButtonEvent(buttonPress, jovios.GetPlayer(new JoviosUserID(userID)).GetControllerStyle(), side, action);
-		foreach(IJoviosControllerListener listener in jovios.GetPlayer(new JoviosUserID(userID)).GetControllerListeners()){
-			if(listener.ButtonEventReceived(e)){
-				return;
-			}
-		}
+		//JoviosButtonEvent e = new JoviosButtonEvent(buttonPress, jovios.GetPlayer(new JoviosUserID(userID)).GetControllerStyle(), side, action);
+		//foreach(IJoviosControllerListener listener in jovios.GetPlayer(new JoviosUserID(userID)).GetControllerListeners()){
+		//	if(listener.ButtonEventReceived(e)){
+		//		return;
+		//	}
+		//}
 	}
 
 	//here is the information returned for instantiating and updating the JoviosPlayer object
