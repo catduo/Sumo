@@ -47,8 +47,8 @@ public class Sumo : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		jovios = GameManager.jovios;
-		crown = transform.FindChild("Crown");
 		body = transform.FindChild("Body");
+		crown = body.FindChild("Crown");
 		modifiers = transform.FindChild("Modifiers");
 		GameObject newHand = (GameObject) GameObject.Instantiate(projectile, body.up + body.position, Quaternion.identity);
 		hand = newHand.transform;
@@ -77,7 +77,6 @@ public class Sumo : MonoBehaviour {
 	}
 	
 	void Update () {
-		crown.position = body.position + new Vector3(0,0.1F,-0.5F);
 		if(MenuManager.gameState == GameState.ChooseArena){
 			hand.collider.enabled = false;
 			hand.FindChild("Sphere").renderer.enabled = false;
@@ -303,6 +302,12 @@ public class Sumo : MonoBehaviour {
 	void OnDisable(){
 		if(jovios.GetPlayer(playerNumber) != null){
 			jovios.GetPlayer(playerNumber).RemovePlayerObject(gameObject);
+			if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left") != null){
+				jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").SetDirection(Vector2.zero);
+			}
+			if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right") != null){
+			jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right").SetDirection(Vector2.zero);
+			}
 		}
 	}
 }

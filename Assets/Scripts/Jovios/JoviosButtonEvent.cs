@@ -13,13 +13,8 @@ public class JoviosButtonEvent {
 		type = typeIn;
 	}
 	//the side is right or left, but will eventually be supporting arbitrary deffinitions and will change to locations instead of side.
-	private string side;
-	public string GetSide(){
-		return side;
-	}
-	//the side is right or left, but will eventually be supporting arbitrary deffinitions and will change to locations instead of side.
 	private string type;
-	public string GetType(){
+	public string GetButtonType(){
 		return type;
 	}
 	//the response is the string defined by the game as what the game should be listening for.  this is not the description, but should be associated with it

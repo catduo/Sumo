@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	bool IJoviosPlayerListener.PlayerConnected(JoviosPlayer p){
+		Debug.Log (p.GetUserID().GetIDNumber());
 		GameObject newStatusObject = null;
 		GameObject ps = GameObject.Find("PlayerStatus");
 		for(int i = 0; i < ps.transform.childCount; i++){

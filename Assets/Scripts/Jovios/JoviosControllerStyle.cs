@@ -70,7 +70,7 @@ public class JoviosControllerStyle{
 	}
 	private void AddToJSON(string toAdd){
 		if(JSON == "" || JSON == null){
-			JSON += "\"controlStyle\":["+toAdd;
+			JSON += "'controlStyle':["+toAdd;
 		}
 		else{
 			JSON += ","+toAdd+"";

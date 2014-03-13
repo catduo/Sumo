@@ -218,7 +218,7 @@ public class MenuManager : MonoBehaviour {
 			GUI.Box(new Rect(Screen.width - Screen.width/5,0,Screen.width/5,Screen.height/5), "Loading New Game");
 		}
 		GUI.skin.label.alignment = TextAnchor.UpperLeft;
-		GUI.Label(new Rect(GUI.skin.label.fontSize * 0.25F,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.GetGameName());
+		GUI.Label(new Rect(GUI.skin.label.fontSize * 0.25F,Screen.height - GUI.skin.label.fontSize * 2.5F,Screen.width/5,Screen.height/8), "Game Code\n" + jovios.gameCode);
 		GUI.skin.button.active.background = menuButton;
 		GUI.skin.button.hover.background = menuButton;
 		GUI.skin.button.normal.background = menuButton;

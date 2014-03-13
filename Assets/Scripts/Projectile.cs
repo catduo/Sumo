@@ -45,9 +45,10 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void Normal(){
-		for(int i = 0; i < transform.childCount - 1; i++){
+		for(int i = 0; i < transform.childCount; i++){
 			transform.GetChild(i).renderer.enabled = false;
 		}
+		transform.FindChild("Sphere").renderer.enabled = true;
 		(collider as SphereCollider).radius = 0.65F;
 		gameObject.GetComponent<LineRenderer>().enabled = false;
 	}

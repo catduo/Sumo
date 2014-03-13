@@ -26,7 +26,7 @@ public class JoviosDirection{
 		}
 		direction = Vector2.zero;
 		simplePosition = setSimplePosition;
-		JSON = "{\"type\":\"joystick\",\"position\":\""+simplePosition+"\", \"description\":[\""+description+"\"],\"response\":[\""+response+"\"]}";
+		JSON = "{'type':'joystick','position':'"+simplePosition+"', 'description':['"+description+"'],'response':['"+response+"']}";
 	}
 	public JoviosDirection(Vector2 setPostion, Vector2 setScale, string setAnchor, string setDescription, string setResponse = ""){
 		description = setDescription;
@@ -40,7 +40,7 @@ public class JoviosDirection{
 		position = setPostion;
 		scale = setScale;
 		anchor = setAnchor;
-		JSON = "{\"type\":\"joystick\",\"position\":["+position.x+","+position.y+","+scale.x+","+scale.y+"], \"anchor\":\""+anchor+"\", \"description\":[\""+description+"\"],\"response\":[\""+response+"\"]}";
+		JSON = "{'type':'joystick','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"', 'description':['"+description+"'],'response':['"+response+"']}";
 	}
 
 	//this is for any directional inputs, will eventually support arbitrary definitions

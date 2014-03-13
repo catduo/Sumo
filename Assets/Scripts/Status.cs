@@ -14,6 +14,8 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	public Transform crown;
 	public GameObject playerObject;
 	public GameObject myPlayerObject;
+	public GameObject cursorObject;
+	public GameObject myCursorObject;
 	public TextMesh character;
 	public TextMesh score;
 	public bool is_ready = false;
@@ -36,7 +38,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			else{
 				transform.FindChild("Bracket").renderer.enabled = false;
 			}
-			if(jovios.GetPlayer(myPlayer).PlayerObjectCount() > 0){
+			if(jovios.GetPlayer(myPlayer).PlayerObjectCount() > 0 && myPlayerObject != null){
 				transform.FindChild("Immunity").renderer.enabled = false;
 				transform.FindChild("Range").renderer.enabled = false;
 				transform.FindChild("Rampage").renderer.enabled = false;
@@ -73,12 +75,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			score.text = "";
 			jovios.AddControllerListener(this, myPlayer);
 		}
-		if(playerNumber < 4){
-			transform.localPosition = new Vector3(-4.5F + (playerNumber -1) * 4, -1.75F, 0);
-		}
-		else{
-			transform.localPosition = new Vector3(-4.5F + (playerNumber -5) * 4, -3F, 0);
-		}
+		transform.position = GameObject.Find ("PlayerStatusArea" + (playerNumber + 1).ToString()).transform.position;
 		transform.FindChild("Immunity").renderer.enabled = false;
 		transform.FindChild("Range").renderer.enabled = false;
 		transform.FindChild("Rampage").renderer.enabled = false;
@@ -141,12 +138,12 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					break;
 					
 				case GameState.ChooseArena:
-					Ready ();
 					JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
 					controllerStyle1.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left", "left");
 					controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Select the level my robot is standing on", "Select Level");
 					jovios.SetControls(myPlayer, controllerStyle1);
-					break;
+					Ready ();
+				break;
 					
 				case GameState.GameOn:
 					Ready ();
@@ -173,18 +170,17 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				Ready ();
 				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
 				controllerStyle1.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left");
-				controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Play!", "Select Level");
+				controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Select the level my robot is standing on", "Select Level");
 				jovios.SetControls(myPlayer, controllerStyle1);
 			}
 			break;
 			
 		case "Select Level":
 			if(action == "press"){
-				Debug.Log("select level");
-				GameManager.ChooseArena(chosenArena);
+				CursorClick();
 			}
 			break;
-			
+
 		default:
 			Debug.Log (button);
 			break;
@@ -193,7 +189,39 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	
 	public void Ready(){
 		xMark.renderer.enabled = false;
-		checkMark.renderer.enabled = true;
+		if(MenuManager.gameState == GameState.ChooseArena){
+			checkMark.renderer.enabled = true;
+			SpawnCursor();
+		}
+		else{
+			SpawnRobot();
+		}
+		is_ready = true;
+	}
+
+	void SpawnCursor(){
+		if(myPlayerObject != null){
+			jovios.GetPlayer(myPlayer).RemovePlayerObject(myPlayerObject);
+			Destroy (myPlayerObject);
+		}
+		if(jovios.GetPlayer(myPlayer).PlayerObjectCount() == 0){
+			GameObject newPlayerObject = (GameObject) GameObject.Instantiate(cursorObject, Vector3.zero, Quaternion.identity);
+			newPlayerObject.GetComponent<PlayerCursor>().SetMyPlayer(jovios.GetPlayer(myPlayer));
+			jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
+			myCursorObject = newPlayerObject;
+		}
+	}
+	void CursorClick(){
+		RaycastHit hitInfo;
+		UICamera.Raycast(GameObject.Find ("Camera").camera.WorldToScreenPoint(myCursorObject.transform.position), out hitInfo);
+		hitInfo.collider.transform.SendMessage("OnClick", SendMessageOptions.DontRequireReceiver);
+	}
+	
+	void SpawnRobot(){
+		if(myCursorObject != null){
+			jovios.GetPlayer(myPlayer).RemovePlayerObject(myCursorObject);
+			Destroy (myCursorObject);
+		}
 		if(jovios.GetPlayer(myPlayer).PlayerObjectCount() == 0){
 			GameObject newPlayerObject = (GameObject) GameObject.Instantiate(playerObject, new Vector3(0,-4,0.5F), Quaternion.identity);
 			newPlayerObject.transform.RotateAround(Vector3.zero, Vector3.forward, 360 - 360 / (playerNumber + 1) * jovios.GetPlayerCount());
@@ -203,7 +231,6 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
 			myPlayerObject = newPlayerObject;
 		}
-		is_ready = true;
 	}
 	
 	public void StartRound(){
@@ -215,6 +242,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		controllerStyle.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left");
 		controllerStyle.AddJoystick(new Vector2(-0.6F, 0.9F), new Vector2(1.2F, 1.8F), "br", "right");
 		jovios.SetControls(myPlayer, controllerStyle);
+		Ready();
 	}
 	
 	public void Reset(int newPlayerNumber){

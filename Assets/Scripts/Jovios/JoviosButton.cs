@@ -60,27 +60,27 @@ public class JoviosButton{
 		default:
 			break;
 		}
-		string rsp = "\"response\":[\"";
+		string rsp = "'response':['";
 		for(int i = 0; i < responseKeys.Length; i++){
 			rsp += responseKeys[i];
 			if(i != responseKeys.Length-1){
-				rsp += "\",\"";
+				rsp += "','";
 			}
 			else{
-				rsp += "\"]";
+				rsp += "']";
 			}
 		}
-		string cnt = "\"content\":[\"";
+		string cnt = "'content':['";
 		for(int i = 0; i < content.Length; i++){
 			cnt += content[i];
 			if(i != content.Length-1){
-				cnt += "\",\"";
+				cnt += "','";
 			}
 			else{
-				cnt += "\"]";
+				cnt += "']";
 			}
 		}
-		JSON = "{\"type\":\""+type+"\",\"position\":["+position.x+","+position.y+","+scale.x+","+scale.y+"], \"anchor\":\""+anchor+"\","+cnt+","+rsp+"}";
+		JSON = "{'type':'"+type+"','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"',"+cnt+","+rsp+"}";
 	}
 	private Vector2 position;
 	private Vector2 scale;
