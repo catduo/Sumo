@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SumoCollision : MonoBehaviour {
 	
@@ -31,6 +32,7 @@ public class SumoCollision : MonoBehaviour {
 				transform.parent.GetComponent<Sumo>().boostStart = Time.time;
 				transform.parent.GetComponent<Sumo>().activeBoost = BonusType.Immunity;
 				transform.parent.GetComponent<Sumo>().is_boostActive = true;
+				lastPlayerHit = -1;
 			}
 		}
 	}
@@ -143,32 +145,26 @@ public class SumoCollision : MonoBehaviour {
 				transform.parent.GetComponent<Sumo>().attackPower = 0;
 				if(lastPlayerHit > -1){
 					GameManager.score[lastPlayerHit]++;
-					if(GameManager.winner[0] > -1){
+					if(GameManager.winner.Count>0){
 						if(GameManager.score[lastPlayerHit] > GameManager.score[GameManager.winner[0]] || GameManager.winner[0] == lastPlayerHit){
 							for(int i = 0; i < jovios.GetPlayerCount(); i++){
 								jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = false;
 								jovios.GetPlayer(i).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = false;
 							}
-							GameManager.winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-							GameManager.winner[0] = lastPlayerHit;
+							GameManager.winner = new List<int>();
+							GameManager.winner.Add(lastPlayerHit);
 							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
 							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
 						}
 						else if(GameManager.score[lastPlayerHit] == GameManager.score[GameManager.winner[0]]){
-							int j = 0;
 							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
 							jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
-							for(int i = 0; i < GameManager.winner.Length; i++){
-								if(GameManager.winner[i] == -1){
-									j = i;
-									break;
-								}
-							}
-							GameManager.winner[j] = lastPlayerHit;
+							GameManager.winner.Add(lastPlayerHit);
 						}
 					}
 					else{
-						GameManager.winner[0] = lastPlayerHit;
+						GameManager.winner = new List<int>();
+						GameManager.winner.Add(lastPlayerHit);
 						jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetStatusObject().GetComponent<Status>().crown.renderer.enabled = true;
 						jovios.GetPlayer(new JoviosUserID(lastPlayerHit)).GetPlayerObject().GetComponent<Sumo>().crown.renderer.enabled = true;
 					}
@@ -196,6 +192,12 @@ public class SumoCollision : MonoBehaviour {
 			switch(other.transform.name){
 			case "Bumper":
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);
+				break;
+
+			case "GreenCollider":
+				if(!TutorialArena.playersInsideGreenArea.Contains(playerNumber)){
+					TutorialArena.playersInsideGreenArea.Add(playerNumber);
+				}
 				break;
 			}
 		}

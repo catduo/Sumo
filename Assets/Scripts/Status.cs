@@ -60,9 +60,6 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		}
 		transform.parent = GameObject.Find ("PlayerStatus").transform;
 		if(!is_ready){
-			JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-			controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Build my Robot (robot appears on main screen)", "Join Game");
-			jovios.SetControls(myPlayer, controllerStyle);
 			transform.localRotation = Quaternion.identity;
 			body = transform.FindChild("Primary");
 			score = transform.FindChild("Score").GetComponent<TextMesh>();
@@ -74,6 +71,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			crown.renderer.enabled = false;
 			score.text = "";
 			jovios.AddControllerListener(this, myPlayer);
+			OnButton("Join Game", "release");
 		}
 		transform.position = GameObject.Find ("PlayerStatusArea" + (playerNumber + 1).ToString()).transform.position;
 		transform.FindChild("Immunity").renderer.enabled = false;
@@ -96,7 +94,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		character.color = secondary;
 		character.text = playerCharacter;
 		body.renderer.material.color = primary;
-		if(jovios.GetPlayer(myPlayer).PlayerObjectCount() > 0){
+		if(myPlayerObject != null){
 			jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().SetMyPlayer(playerInfo);
 		}
 	}
@@ -124,13 +122,12 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				myPlayerObject.GetComponent<Sumo>().Attack();
 				break;
 			default:
-				Debug.Log(action);
 				break;
 			}
 			break;
 
 		case "Join Game":
-			//if(action == "release"){
+			if(action == "release"){
 				switch(MenuManager.gameState){
 				case GameState.Countdown:
 					Ready ();
@@ -140,7 +137,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				case GameState.ChooseArena:
 					JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
 					controllerStyle1.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left", "left");
-					controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Select the level my robot is standing on", "Select Level");
+					controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Click cursor", "Click");
 					jovios.SetControls(myPlayer, controllerStyle1);
 					Ready ();
 				break;
@@ -159,13 +156,13 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				case GameState.Menu:
 					break;
 				}
-			//}
+			}
 			break;
 			
 		case "Play Again!":
-			if(action == "press"){
+			if(action == "release"){
 				if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown){
-					GameManager.EndRound();
+					Camera.main.transform.GetComponent<GameManager>().EndRound();
 				}
 				Ready ();
 				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
@@ -175,7 +172,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			}
 			break;
 			
-		case "Select Level":
+		case "Click":
 			if(action == "press"){
 				CursorClick();
 			}
@@ -214,7 +211,9 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	void CursorClick(){
 		RaycastHit hitInfo;
 		UICamera.Raycast(GameObject.Find ("Camera").camera.WorldToScreenPoint(myCursorObject.transform.position), out hitInfo);
-		hitInfo.collider.transform.SendMessage("OnClick", SendMessageOptions.DontRequireReceiver);
+		if(hitInfo.collider != null){
+			hitInfo.collider.transform.SendMessage("OnClick", SendMessageOptions.DontRequireReceiver);
+		}
 	}
 	
 	void SpawnRobot(){
@@ -243,6 +242,14 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		controllerStyle.AddJoystick(new Vector2(-0.6F, 0.9F), new Vector2(1.2F, 1.8F), "br", "right");
 		jovios.SetControls(myPlayer, controllerStyle);
 		Ready();
+	}
+	
+	public void BreakTie(int position){
+		GameObject newPlayerObject = (GameObject) GameObject.Instantiate(playerObject, GameManager.chosenArena.transform.FindChild("PlayerSpawners").GetChild(position).position, Quaternion.identity);
+		newPlayerObject.transform.parent = GameObject.Find ("PlayerObjects").transform;
+		newPlayerObject.GetComponent<Sumo>().SetMyPlayer(jovios.GetPlayer(myPlayer));
+		jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
+		myPlayerObject = newPlayerObject;
 	}
 	
 	public void Reset(int newPlayerNumber){

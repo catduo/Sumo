@@ -175,7 +175,7 @@ public class Jovios : MonoBehaviour {
 	public void StartServer(string thisGameName = ""){
 		gameCode = Mathf.FloorToInt(UnityEngine.Random.value * 100000);
 		udpPort = 24000;
-		unityPort = 25000;
+		unityPort = 25004;
 		Application.runInBackground = true;
 		Network.InitializeServer(32, unityPort, !Network.HavePublicAddress());
 		SetGameName(thisGameName);
@@ -253,7 +253,6 @@ public class Jovios : MonoBehaviour {
 	
 	//this is the unity newtorkign connection and disconnection information
 	void OnPlayerConnected(NetworkPlayer player){
-		Debug.Log("connected");
 		string playerJSON;
 		playerJSON = "{'packet':{'playerNumber':"+networkPlayerCount.ToString()+"}}";
 		networkView.RPC ("SendPacket",player,playerJSON);
@@ -407,9 +406,10 @@ public class Jovios : MonoBehaviour {
 					break;
 					
 				case "accelerometer":
-					var accInfo = myJSON["packet"]["response"][i]["values"];
-					GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetAccelerometer().SetGyro(new Quaternion(-accInfo[0].AsFloat, -accInfo[1].AsFloat, accInfo[2].AsFloat, accInfo[3].AsFloat));
-					GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetAccelerometer().SetAcceleration(new Vector3(accInfo[4].AsFloat, accInfo[5].AsFloat, accInfo[6].AsFloat));
+					Debug.Log (myJSON["packet"]["response"][i]);
+					var accInfo = myJSON["packet"]["response"][i];
+					GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetAccelerometer().SetGyro(new Quaternion(-accInfo["gyroX"].AsFloat, -accInfo["gyroY"].AsFloat, accInfo["gyroZ"].AsFloat, accInfo["gyroW"].AsFloat));
+					GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetAccelerometer().SetAcceleration(new Vector3(accInfo["accx"].AsFloat, accInfo["accy"].AsFloat, accInfo["accZ"].AsFloat));
 					break;
 					
 				default:

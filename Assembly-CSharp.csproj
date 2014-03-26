@@ -175,6 +175,8 @@
      <Compile Include="Assets\Scripts\ArenaSelection.cs" />
      <Compile Include="Assets\Scripts\ArenaSpawning.cs" />
      <Compile Include="Assets\Scripts\BonusSpawner.cs" />
+     <Compile Include="Assets\Scripts\Bumper.cs" />
+     <Compile Include="Assets\Scripts\Countdown.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\Jovios\IJoviosControllerListener.cs" />
      <Compile Include="Assets\Scripts\Jovios\IJoviosPlayerListener.cs" />
@@ -196,6 +198,7 @@
      <Compile Include="Assets\Scripts\Status.cs" />
      <Compile Include="Assets\Scripts\Sumo.cs" />
      <Compile Include="Assets\Scripts\SumoCollision.cs" />
+     <Compile Include="Assets\Scripts\TutorialArena.cs" />
      <None Include="Assets\Art\NGUI\Resources\Shaders\Unlit - Depth Cutout.shader" />
      <None Include="Assets\Art\NGUI\ReadMe - 3.5.1.txt" />
      <None Include="Assets\Art\NGUI\Examples\Models\Orc\Orc Skin.shader" />

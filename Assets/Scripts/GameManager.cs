@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour, IJoviosPlayerListener {
-	
-	private Transform modifiers;
+
 	public static Dictionary<int, float> score = new Dictionary<int, float>();
-	public static int[] winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+	public static List<int> winner = new List<int>();
 	public static GameObject chosenArena;
 	public static GameObject[] arenas;
 	public GameObject arena1;
@@ -14,6 +13,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public GameObject arena3;
 	public GameObject arena4;
 	public GameObject arenaSelection;	
+	public GameObject tieBreaker;	
 	public static Transform bonusSpawners;
 	public static float bonusSpawnTimer = 0;
 	public GameObject statusObject;
@@ -28,21 +28,20 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	// Use this for initialization
 	void Start () {
 		jovios.AddPlayerListener(this);
-		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4}; 
+		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4, tieBreaker}; 
 		chosenArena = (GameObject) GameObject.Instantiate(arenaSelection, Vector3.zero, Quaternion.identity);
-		modifiers = GameObject.Find ("Modifiers").transform;
+		GameObject.Find("GameCode").GetComponent<UILabel>().text = jovios.gameCode.ToString();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(bonusSpawnTimer + 8 < Time.time && MenuManager.gameState == GameState.GameOn){
+		if(bonusSpawnTimer + 8 < Time.time && MenuManager.gameState == GameState.GameOn && bonusSpawners.childCount > 0){
 			bonusSpawnTimer = Time.time;
 			bonusSpawners.GetChild(Mathf.FloorToInt(bonusSpawners.childCount * Random.value)).FindChild("BonusSpawner").GetComponent<BonusSpawner>().bonusType = (BonusType)Mathf.FloorToInt(Random.value * 5);
 		}
 	}
 	
 	bool IJoviosPlayerListener.PlayerConnected(JoviosPlayer p){
-		Debug.Log (p.GetUserID().GetIDNumber());
 		GameObject newStatusObject = null;
 		GameObject ps = GameObject.Find("PlayerStatus");
 		for(int i = 0; i < ps.transform.childCount; i++){
@@ -51,7 +50,6 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 				newStatusObject.GetComponent<Status>().is_ready = false;
 			}
 		}
-		Debug.Log (p.GetPlayerName());
 		if(newStatusObject == null){
 			newStatusObject = (GameObject) GameObject.Instantiate(statusObject, Vector3.zero, Quaternion.identity);
 		}
@@ -72,7 +70,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	public static void StartRound(){
-		winner = new int[] {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+		winner = new List<int>();
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
 			if(jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().is_ready){
 				jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().StartRound();
@@ -80,11 +78,11 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 		}
 	}
 	
-	public static void EndRound(){
+	public void EndRound(){
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
 		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-		controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Build my Robot (robot appears on main screen)", "Join Game");
+		controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Play Again!", "Join Game");
 		jovios.SetControls(controllerStyle);
 		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
@@ -102,11 +100,38 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 		if(selectedArena > 0){
 			Destroy (chosenArena);
 			chosenArena = (GameObject) GameObject.Instantiate(arenas[selectedArena], Vector3.zero, Quaternion.identity);
-			MenuManager.lastTickTime = Time.time;
+			GameObject.Find ("Countdown").GetComponent<Countdown>().StartCountdown(3);
 			MenuManager.gameState = GameState.Countdown;
 			GameManager.StartRound();
 			bonusSpawners = chosenArena.transform.FindChild("BonusSpawners");
 			bonusSpawnTimer = Time.time;
 		}
+	}
+	
+	public static void SetVictoryPlayer (JoviosPlayer player){
+		Debug.Log("start");
+		GameObject.Find("Victory").GetComponent<UIPanel>().enabled = true;
+		GameObject.Find("VictoryRobot").transform.position = Vector3.zero;
+		GameObject.Find("VictoryName").GetComponent<UILabel>().text = player.GetPlayerName();
+		Color primary = player.GetColor("primary");
+		Color secondary = player.GetColor("secondary");
+		Transform body = GameObject.Find("VictoryRobot").transform.FindChild("Body");
+		Transform robot = body.FindChild("Robot1");
+		for(int i = 0; i < robot.childCount; i++){
+			if(robot.GetChild(i).name == "Sphere_008"){
+				robot.GetChild(i).GetChild(0).renderer.material.color = primary;
+				robot.GetChild(i).GetChild(1).renderer.material.color = primary;
+				robot.GetChild(i).GetChild(2).renderer.material.color = primary;
+			}
+			else if(robot.GetChild(i).name == "Sphere_009"){
+				robot.GetChild(i).GetChild(0).renderer.material.color = secondary;
+				robot.GetChild(i).GetChild(1).renderer.material.color = secondary;
+				robot.GetChild(i).GetChild(2).renderer.material.color = secondary;
+			}
+			else{
+				robot.GetChild(i).renderer.material.color = Color.grey;
+			}
+		}
+		Debug.Log("start");
 	}
 }

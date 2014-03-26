@@ -24,10 +24,6 @@ public class ArenaSpawning : MonoBehaviour {
 			newBumper.transform.localPosition = position;
 			newBumper.transform.localScale = new Vector3(1,0.5F,1);
 		}
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+		GameObject.Find ("CountdownCorner").GetComponent<Countdown>().StartCountdown(18);
 	}
 }

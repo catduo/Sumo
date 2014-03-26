@@ -27,14 +27,14 @@ public class JoviosControllerStyle{
 		if(response == ""){
 			response = description;
 		}
-		Debug.Log (response);
 		buttons.Add(response, new JoviosButton(position, scale, anchor, "button1", new string[1] {description}, new string[1] {response}));
 		AddToJSON(buttons[response].GetJSON());
 	}
 	
 	//this is the accelerometer information.  it is currently either on or off, but should have intermediate states added in.
 	public void SetAccelerometerStyle(JoviosAccelerometerStyle setAccelerometerStyle){
-		accelerometer.SetAccelerometerStyle(setAccelerometerStyle);
+		accelerometer = new JoviosAccelerometer(setAccelerometerStyle);
+		AddToJSON(accelerometer.JSON);
 	}
 
 	

@@ -47,6 +47,7 @@ public class Sumo : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		jovios = GameManager.jovios;
+		scale = 0.7F + 0.5F / (jovios.GetPlayerCount());
 		body = transform.FindChild("Body");
 		crown = body.FindChild("Crown");
 		modifiers = transform.FindChild("Modifiers");
@@ -87,7 +88,7 @@ public class Sumo : MonoBehaviour {
 		}
 		if(is_boostActive){
 			is_boostActive = false;
-			scale = 1;
+			scale = 0.7F + 0.5F / (jovios.GetPlayerCount());
 			speed = 0.7F;
 			range = 1;
 			strength = 1;
@@ -116,7 +117,7 @@ public class Sumo : MonoBehaviour {
 				break;
 			
 			case BonusType.Rampage:
-				scale = 1.5F;
+				scale = 1.5F * (0.7F + 0.5F / (jovios.GetPlayerCount()));
 				defense = 3;
 				speed = 0.8F;
 				is_rampage = true;
@@ -162,7 +163,7 @@ public class Sumo : MonoBehaviour {
 		else if(boostStart + boostDuration < Time.time){
 			primary = new Color(primary.r, primary.g, primary.b, 1);
 			secondary = new Color(secondary.r, secondary.g, secondary.b, 1);
-			scale = 1;
+			scale = 0.7F + 0.5F / (jovios.GetPlayerCount());
 			speed = 0.7F;
 			range = 1;
 			strength = 1;
