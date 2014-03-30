@@ -111,7 +111,7 @@ public class MenuManager : MonoBehaviour {
 				gameState = GameState.GameEnd;
 				for(int i = 0; i < jovios.GetPlayerCount(); i++){
 					JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-					controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Build my Robot (robot appears on main screen)", "Join Game");
+					controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Click", "Click");
 					jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
 				}
 				Transform po = GameObject.Find ("PlayerObjects").transform;

@@ -171,11 +171,12 @@ public class Jovios : MonoBehaviour {
 	}
 	
 	//this starts the unity server and udp broadcast to local network
+	public string iconURL{get; set;}
 	public int gameCode{get; private set;}
 	public void StartServer(string thisGameName = ""){
 		gameCode = Mathf.FloorToInt(UnityEngine.Random.value * 100000);
 		udpPort = 24000;
-		unityPort = 25004;
+		unityPort = 25006;
 		Application.runInBackground = true;
 		Network.InitializeServer(32, unityPort, !Network.HavePublicAddress());
 		SetGameName(thisGameName);
@@ -214,7 +215,7 @@ public class Jovios : MonoBehaviour {
 		else{
 			externalIP = Network.player.externalIP;
 		}
-		string toSend = gameName+";"+Network.player.ipAddress+";"+gameCode+";"+unityPort;
+		string toSend = gameName+";"+Network.player.ipAddress+";"+gameCode+";"+unityPort+";"+iconURL;
 		MasterServer.RegisterHost(typeName, toSend);
 		WWWForm form = new WWWForm();
 		form.AddField("action","create");
@@ -275,7 +276,7 @@ public class Jovios : MonoBehaviour {
 	public int udpPort {get; private set;}
 	public int unityPort {get; private set;}
 	public IEnumerator BroadcastPresence(){
-		string toSend = "'packet':{'session':'"+gameName+";"+Network.player.ipAddress+";"+gameCode+";"+unityPort+"'}";
+		string toSend = "'packet':{'session':'"+gameName+";"+Network.player.ipAddress+";"+gameCode+";"+unityPort+";"+iconURL+"'}";
 		byte[] sendBytes = Encoding.ASCII.GetBytes(toSend);
 		udpClient.Send(sendBytes, sendBytes.Length, udpBroadcastEndpoint);
 		yield return new WaitForSeconds(5);
@@ -455,6 +456,7 @@ public class Jovios : MonoBehaviour {
 	}
 	
 	//This will be called by the connection scripts and will manage player connections
+	public string assetBundleURL{get; set;}
 	public void PlayerConnected(string ip, string networkType, int playerNumber, float primaryR, float primaryG, float primaryB, float secondaryR, float secondaryG, float secondaryB, string playerName, int deviceID){
 		players.Add(new JoviosPlayer(players.Count, new JoviosUserID(deviceID), playerName, new Color(primaryR, primaryG, primaryB, 1), new Color(secondaryR, secondaryG, secondaryB, 1)));
 		if(!deviceIDToPlayerNumber.ContainsKey(deviceID)){
@@ -504,6 +506,9 @@ public class Jovios : MonoBehaviour {
 		}
 		else{
 			deviceIDToPlayerNumber[deviceID] = playerNumber;
+		}
+		if(assetBundleURL != "" && assetBundleURL != null){
+			AddToPacket(new JoviosUserID(deviceID), "'assetBundle':'"+assetBundleURL+"'");
 		}
 		foreach(IJoviosPlayerListener listener in playerListeners){
 			if(listener.PlayerConnected(GetPlayer(new JoviosUserID(deviceID)))){

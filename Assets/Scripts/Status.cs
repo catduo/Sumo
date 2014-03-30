@@ -167,7 +167,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				Ready ();
 				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
 				controllerStyle1.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left");
-				controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Select the level my robot is standing on", "Select Level");
+				controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Click", "Click");
 				jovios.SetControls(myPlayer, controllerStyle1);
 			}
 			break;
