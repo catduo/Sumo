@@ -107,7 +107,9 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				break;
 
 			case "release":
-				jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").SetDirection(Vector2.zero);
+				if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left") != null){
+					jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").SetDirection(Vector2.zero);
+				}
 				break;
 			}
 			break;
@@ -118,8 +120,10 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				break;
 				
 			case "release":
-				jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right").SetDirection(Vector2.zero);
-				myPlayerObject.GetComponent<Sumo>().Attack();
+				if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right") != null){
+					jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right").SetDirection(Vector2.zero);
+					myPlayerObject.GetComponent<Sumo>().Attack();
+				}
 				break;
 			default:
 				break;
@@ -135,10 +139,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					break;
 					
 				case GameState.ChooseArena:
-					JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
-					controllerStyle1.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left", "left");
-					controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Click cursor", "Click");
-					jovios.SetControls(myPlayer, controllerStyle1);
+					jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.Cursor));
 					Ready ();
 				break;
 					
@@ -148,9 +149,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					break;
 					
 				case GameState.GameEnd:
-					JoviosControllerStyle controllerStyle2 = new JoviosControllerStyle();
-					controllerStyle2.AddButton1(Vector2.zero, new Vector2(2, 0.6F), "mc", "Play Again!", "Play Again!");
-					jovios.SetControls(myPlayer, controllerStyle2);
+					jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.PlayAgain));
 					break;
 					
 				case GameState.Menu:
@@ -165,10 +164,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					Camera.main.transform.GetComponent<GameManager>().EndRound();
 				}
 				Ready ();
-				JoviosControllerStyle controllerStyle1 = new JoviosControllerStyle();
-				controllerStyle1.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left");
-				controllerStyle1.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Click", "Click");
-				jovios.SetControls(myPlayer, controllerStyle1);
+				jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.Cursor));
 			}
 			break;
 			
@@ -237,10 +233,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		score.color = Color.white;
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = false;
-		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-		controllerStyle.AddJoystick(new Vector2(0.6F, 0.9F), new Vector2(1.2F, 1.8F), "bl", "left");
-		controllerStyle.AddJoystick(new Vector2(-0.6F, 0.9F), new Vector2(1.2F, 1.8F), "br", "right");
-		jovios.SetControls(myPlayer, controllerStyle);
+		jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.Robot));
 		Ready();
 	}
 	

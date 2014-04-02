@@ -212,7 +212,9 @@ public class Sumo : MonoBehaviour {
 					hand.GetComponent<Projectile>().Strong();
 				}
 				else if(is_rampage){
-					hand.FindChild("Sphere").renderer.enabled = false;
+					for(int i = 0; i < hand.childCount; i++){
+						hand.GetChild(i).renderer.enabled = false;
+					}
 					hand.collider.enabled = false;
 				}
 				else{

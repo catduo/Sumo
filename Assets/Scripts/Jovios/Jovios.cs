@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
@@ -176,9 +177,9 @@ public class Jovios : MonoBehaviour {
 	public void StartServer(string thisGameName = ""){
 		gameCode = Mathf.FloorToInt(UnityEngine.Random.value * 100000);
 		udpPort = 24000;
-		unityPort = 25006;
+		unityPort = 25002;
+		StartUnity();
 		Application.runInBackground = true;
-		Network.InitializeServer(32, unityPort, !Network.HavePublicAddress());
 		SetGameName(thisGameName);
 		udpEndpoint = new IPEndPoint(IPAddress.Any, udpPort);
 		udpBroadcastEndpoint = new IPEndPoint(IPAddress.Broadcast, udpPort);
@@ -200,6 +201,14 @@ public class Jovios : MonoBehaviour {
 		Debug.Log("begun");
 		//Thread tr = new Thread(new ThreadStart(UDPListening));
 		//tr.Start();
+	}
+
+
+	void StartUnity(){
+		UnityNetworkConnect();
+	}
+	void UnityNetworkConnect(){
+		Network.InitializeServer(32, unityPort, !Network.HavePublicAddress());
 	}
 	
 	//this is the external IP gained from either the website or the unity system

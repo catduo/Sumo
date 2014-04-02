@@ -24,6 +24,6 @@ public class ArenaSpawning : MonoBehaviour {
 			newBumper.transform.localPosition = position;
 			newBumper.transform.localScale = new Vector3(1,0.5F,1);
 		}
-		GameObject.Find ("CountdownCorner").GetComponent<Countdown>().StartCountdown(18);
+		GameObject.Find ("CountdownCorner").GetComponent<Countdown>().StartCountdown(180);
 	}
 }

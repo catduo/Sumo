@@ -38,29 +38,27 @@ public class MenuManager : MonoBehaviour {
 		case GameState.Menu:
 			break;
 			
-			
 		case GameState.ChooseArena:
 			GameObject.Find("VictoryRobot").transform.position = new Vector3(0,50,0);
 			GameObject.Find("Victory").GetComponent<UIPanel>().enabled = false;
 			break;
 			
-			
 		case GameState.Countdown:
 			if(GameObject.Find ("Countdown").GetComponent<Countdown>().countTime < 1){
-				GameManager.StartRound();
 				gameState = GameState.GameOn;
 			}
 			break;
 			
-			
 		case GameState.GameOn:
 			if(GameObject.Find("CountdownCorner").GetComponent<Countdown>().countTime < 1){
+				if(GameObject.Find("Tutorial") != null){
+					GameObject.Find("Tutorial").GetComponent<UIPanel>().enabled = false;
+				}
 				if(GameManager.winner.Count > 1){
 					Destroy (GameManager.chosenArena);
 					GameManager.chosenArena = (GameObject) GameObject.Instantiate(GameManager.arenas[5], Vector3.zero, Quaternion.identity);
 					GameObject.Find ("Countdown").GetComponent<Countdown>().StartCountdown(3);
 					gameState = GameState.SuddenDeath;
-					Debug.Log (GameManager.winner.Count);
 					Transform po = GameObject.Find ("PlayerObjects").transform;
 					for(int i = 0; i < po.childCount; i++){
 						Destroy(po.GetChild(i).gameObject);
@@ -70,19 +68,14 @@ public class MenuManager : MonoBehaviour {
 					foreach(int i in GameManager.winner){
 						Debug.Log (i);
 						jovios.GetPlayer(new JoviosUserID(i)).GetStatusObject().GetComponent<Status>().BreakTie(j);
-						JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-						controllerStyle.AddJoystick(new Vector2(-1.3F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "left");
-						controllerStyle.AddJoystick(new Vector2(1.3F, -0.2F), new Vector2(1.1F, 1.8F), "mc", "right");
-						jovios.SetControls(jovios.GetPlayer(new JoviosUserID(i)).GetUserID(), controllerStyle);
+						jovios.SetControls(jovios.GetPlayer(new JoviosUserID(i)).GetUserID(), GameManager.SetControls(ControlStyle.Robot));
 						j++;
 					}
 				}
 				else{
 					gameState = GameState.GameEnd;
 					for(int i = 0; i < jovios.GetPlayerCount(); i++){
-						JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-						controllerStyle.AddButton1(Vector2.zero, new Vector2(2, 0.6F), "mc", "Play!", "Play Again!");
-						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
+						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), GameManager.SetControls(ControlStyle.PlayAgain));
 					}
 					Transform po = GameObject.Find ("PlayerObjects").transform;
 					for(int i = 0; i < po.childCount; i++){
@@ -97,22 +90,20 @@ public class MenuManager : MonoBehaviour {
 			}
 			break;
 			
-			
 		case GameState.GameEnd:
 			Destroy(GameManager.chosenArena);
-			if(GameManager.winner.Count > 0){
+			if(GameManager.winner.Count > 0 && !GameObject.Find("SuddenDeath").GetComponent<UIPanel>().enabled){
 				GameManager.SetVictoryPlayer(jovios.GetPlayer(new JoviosUserID(GameManager.winner[0])));
 			}
 			break;
 
 		case GameState.SuddenDeath:
-			GameObject.Find("Tutorial").GetComponent<UIPanel>().enabled = true;
+			GameObject.Find("SuddenDeath").GetComponent<UIPanel>().enabled = true;	
 			if(GameManager.winner.Count == 1){
-				gameState = GameState.GameEnd;
+				GameObject.Find("SuddenDeath").GetComponent<UIPanel>().enabled = false;
 				for(int i = 0; i < jovios.GetPlayerCount(); i++){
-					JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-					controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Click", "Click");
-					jovios.SetControls(jovios.GetPlayer(i).GetUserID(), controllerStyle);
+					Debug.Log ("set cursor");
+					jovios.SetControls(jovios.GetPlayer (i).GetUserID(), GameManager.SetControls(ControlStyle.PlayAgain));
 				}
 				Transform po = GameObject.Find ("PlayerObjects").transform;
 				for(int i = 0; i < po.childCount; i++){
@@ -123,6 +114,7 @@ public class MenuManager : MonoBehaviour {
 				for(int i = 0; i < mo.childCount; i++){
 					Destroy(mo.GetChild(i).gameObject);
 				}
+				gameState = GameState.GameEnd;
 			}
 			break;
 			

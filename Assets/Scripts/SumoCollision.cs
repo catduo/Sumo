@@ -20,19 +20,18 @@ public class SumoCollision : MonoBehaviour {
 	
 	void Update(){
 		if(is_ringOut){
-			if(MenuManager.gameState == GameState.SuddenDeath){
-				Destroy(transform.parent.gameObject);
-			}
 			if(ringOutDuration + ringOutTime < Time.time){
 				is_ringOut = false;
 				transform.position = GameObject.Find("PlayerSpawners").transform.GetChild(Mathf.FloorToInt(GameObject.Find("PlayerSpawners").transform.childCount * Random.value)).transform.position;
 				rigidbody.velocity = Vector3.zero;
 				rigidbody.angularVelocity = Vector3.zero;
-				transform.parent.GetComponent<Sumo>().boostDuration = 2;
-				transform.parent.GetComponent<Sumo>().boostStart = Time.time;
-				transform.parent.GetComponent<Sumo>().activeBoost = BonusType.Immunity;
-				transform.parent.GetComponent<Sumo>().is_boostActive = true;
-				lastPlayerHit = -1;
+				if(MenuManager.gameState != GameState.SuddenDeath){
+					transform.parent.GetComponent<Sumo>().boostDuration = 2;
+					transform.parent.GetComponent<Sumo>().boostStart = Time.time;
+					transform.parent.GetComponent<Sumo>().activeBoost = BonusType.Immunity;
+					transform.parent.GetComponent<Sumo>().is_boostActive = true;
+					lastPlayerHit = -1;
+				}
 			}
 		}
 	}
@@ -136,9 +135,6 @@ public class SumoCollision : MonoBehaviour {
 		if(transform.parent != other.transform.parent){
 			switch(other.transform.name){
 			case "Bounds":
-				if(MenuManager.gameState == GameState.ChooseArena){
-					//do nothing
-				}
 				is_ringOut = true;
 				ringOutTime = Time.time;
 				rigidbody.velocity = new Vector3(rigidbody.velocity.x/4, rigidbody.velocity.y/4,0);

@@ -92,9 +92,6 @@ public class TutorialArena : MonoBehaviour {
 	}
 	
 	void OnDisable(){
-		if(GameObject.Find("Tutorial") != null){
-			GameObject.Find("Tutorial").GetComponent<UIPanel>().enabled = false;
-		}
 		tutorialStep = 0;
 		playersInsideGreenArea = new List<int>();
 	}

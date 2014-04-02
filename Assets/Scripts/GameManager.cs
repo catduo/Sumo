@@ -2,6 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public enum ControlStyle{
+	Cursor,
+	Robot,
+	PlayAgain
+}
+
 public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 
 	public static Dictionary<int, float> score = new Dictionary<int, float>();
@@ -37,6 +43,9 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	// Update is called once per frame
 	void Update () {
+		if(Input.GetKeyDown(KeyCode.Escape)){
+			Application.Quit();
+		}
 		if(bonusSpawnTimer + 8 < Time.time && MenuManager.gameState == GameState.GameOn && bonusSpawners.childCount > 0){
 			bonusSpawnTimer = Time.time;
 			bonusSpawners.GetChild(Mathf.FloorToInt(bonusSpawners.childCount * Random.value)).FindChild("BonusSpawner").GetComponent<BonusSpawner>().bonusType = (BonusType)Mathf.FloorToInt(Random.value * 5);
@@ -83,9 +92,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public void EndRound(){
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
-		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-		controllerStyle.AddButton1(new Vector2(0, 0.2F), new Vector2(2, 1.2F), "mc", "Play Again!", "Join Game");
-		jovios.SetControls(controllerStyle);
+		//play again controls
 		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;
@@ -105,13 +112,15 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 			GameObject.Find ("Countdown").GetComponent<Countdown>().StartCountdown(3);
 			MenuManager.gameState = GameState.Countdown;
 			GameManager.StartRound();
+			for(int i = 0; i < GameObject.Find ("PlayerObjects").transform.childCount; i++){
+				GameObject.Find ("PlayerObjects").transform.GetChild(i).position = GameObject.Find("PlayerSpawners").transform.GetChild(Mathf.FloorToInt(GameObject.Find("PlayerSpawners").transform.childCount * Random.value)).transform.position;
+			}
 			bonusSpawners = chosenArena.transform.FindChild("BonusSpawners");
 			bonusSpawnTimer = Time.time;
 		}
 	}
 	
 	public static void SetVictoryPlayer (JoviosPlayer player){
-		Debug.Log("start");
 		GameObject.Find("Victory").GetComponent<UIPanel>().enabled = true;
 		GameObject.Find("VictoryRobot").transform.position = Vector3.zero;
 		GameObject.Find("VictoryName").GetComponent<UILabel>().text = player.GetPlayerName();
@@ -134,6 +143,23 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 				robot.GetChild(i).renderer.material.color = Color.grey;
 			}
 		}
-		Debug.Log("start");
+	}
+
+	public static JoviosControllerStyle SetControls(ControlStyle controls){
+		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
+		switch(controls){
+		case ControlStyle.PlayAgain:
+			controllerStyle.AddButton1(new Vector2(0, 0), new Vector2(1.5F, 1.5F), "mc", "Play Again!", "Play Again!");
+			break;
+		case ControlStyle.Cursor:
+			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.8F), "bl", "left", "left");
+			controllerStyle.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Click cursor", "Click");
+			break;
+		case ControlStyle.Robot:
+			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.8F), "bl", "left");
+			controllerStyle.AddJoystick(new Vector2(-0.7F, 1F), new Vector2(1.2F, 1.8F), "br", "right");
+			break;
+		}
+		return controllerStyle;
 	}
 }
