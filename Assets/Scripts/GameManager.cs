@@ -90,11 +90,18 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	public void EndRound(){
+		GameObject.Find ("PlayerStatus").transform.position = new Vector3(0,5,10);
+		GameObject.Find ("PlayerStatusAreas").transform.position = new Vector3(0,5,10);
 		Destroy(chosenArena);
 		MenuManager.gameState = GameState.ChooseArena;
 		//play again controls
 		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
+			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Immunity").renderer.enabled = false;
+			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Range").renderer.enabled = false;
+			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Rampage").renderer.enabled = false;
+			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Speed").renderer.enabled = false;
+			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Strength").renderer.enabled = false;
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().checkMark.renderer.enabled = false;
 		}
@@ -121,6 +128,8 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	public static void SetVictoryPlayer (JoviosPlayer player){
+		GameObject.Find ("PlayerStatus").transform.position = new Vector3(1000,5,10);
+		GameObject.Find ("PlayerStatusAreas").transform.position = new Vector3(1000,5,10);
 		GameObject.Find("Victory").GetComponent<UIPanel>().enabled = true;
 		GameObject.Find("VictoryRobot").transform.position = Vector3.zero;
 		GameObject.Find("VictoryName").GetComponent<UILabel>().text = player.GetPlayerName();
@@ -152,12 +161,12 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 			controllerStyle.AddButton1(new Vector2(0, 0), new Vector2(1.5F, 1.5F), "mc", "Play Again!", "Play Again!");
 			break;
 		case ControlStyle.Cursor:
-			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.8F), "bl", "left", "left");
-			controllerStyle.AddButton1(new Vector2 (1, 0), Vector2.one, "mc", "Click cursor", "Click");
+			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.6F), "bl", "left", "left");
+			controllerStyle.AddButton1(new Vector2(-0.7F, 1F), new Vector2(1.2F, 1.6F), "mc", "Click cursor", "Click");
 			break;
 		case ControlStyle.Robot:
-			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.8F), "bl", "left");
-			controllerStyle.AddJoystick(new Vector2(-0.7F, 1F), new Vector2(1.2F, 1.8F), "br", "right");
+			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.6F), "bl", "left");
+			controllerStyle.AddJoystick(new Vector2(-0.7F, 1F), new Vector2(1.2F, 1.6F), "br", "right");
 			break;
 		}
 		return controllerStyle;
