@@ -181,15 +181,15 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	}
 	
 	public void Ready(){
-		xMark.renderer.enabled = false;
 		if(MenuManager.gameState == GameState.ChooseArena){
-			checkMark.renderer.enabled = true;
 			SpawnCursor();
+			checkMark.renderer.enabled = true;
 		}
 		else{
 			SpawnRobot();
 		}
 		is_ready = true;
+		xMark.renderer.enabled = false;
 	}
 
 	void SpawnCursor(){

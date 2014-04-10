@@ -18,6 +18,8 @@ public class PlayerCursor : MonoBehaviour {
 	private float yMax;
 
 	void Start(){
+		transform.parent = GameObject.Find("UI Root").transform;
+		transform.localScale = Vector3.one;
 		yMin = -720/2;
 		yMax = 720/2;
 		xMin = - Screen.width/Screen.height * 720/2;

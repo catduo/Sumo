@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public static Jovios jovios;
 	public Material selectedArenaTile;
 	public Material deselectedArenaTile;
+	public List<string> controlStyleNames = new List<string>();
+	public List<GameObject> controlStyleObjects = new List<GameObject>();
 	
 	void Awake(){
 		jovios = Jovios.Create();

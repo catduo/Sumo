@@ -19,7 +19,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_GENERICS;ENABLE_SUBSTANCE;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_3_4;UNITY_4_3;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_ANDROID;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;ENABLE_MONO;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_GENERICS;ENABLE_SUBSTANCE;INCLUDE_WP8SUPPORT;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;UNITY_ANDROID_API;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_3_4;UNITY_4_3;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -172,25 +172,25 @@
      <Compile Include="Assets\Art\NGUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\Art\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\Art\NGUI\Scripts\UI\UIViewport.cs" />
+     <Compile Include="Assets\Jovios\IJoviosControllerListener.cs" />
+     <Compile Include="Assets\Jovios\IJoviosPlayerListener.cs" />
+     <Compile Include="Assets\Jovios\Jovios.cs" />
+     <Compile Include="Assets\Jovios\JoviosAccelerometer.cs" />
+     <Compile Include="Assets\Jovios\JoviosAccelerometerStyle.cs" />
+     <Compile Include="Assets\Jovios\JoviosButton.cs" />
+     <Compile Include="Assets\Jovios\JoviosButtonEvent.cs" />
+     <Compile Include="Assets\Jovios\JoviosControllerStyle.cs" />
+     <Compile Include="Assets\Jovios\JoviosDirection.cs" />
+     <Compile Include="Assets\Jovios\JoviosNetworkingState.cs" />
+     <Compile Include="Assets\Jovios\JoviosPlayer.cs" />
+     <Compile Include="Assets\Jovios\JoviosSimpleJSON.cs" />
+     <Compile Include="Assets\Jovios\JoviosUserID.cs" />
      <Compile Include="Assets\Scripts\ArenaSelection.cs" />
      <Compile Include="Assets\Scripts\ArenaSpawning.cs" />
      <Compile Include="Assets\Scripts\BonusSpawner.cs" />
      <Compile Include="Assets\Scripts\Bumper.cs" />
      <Compile Include="Assets\Scripts\Countdown.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Scripts\Jovios\IJoviosControllerListener.cs" />
-     <Compile Include="Assets\Scripts\Jovios\IJoviosPlayerListener.cs" />
-     <Compile Include="Assets\Scripts\Jovios\Jovios.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosAccelerometer.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosAccelerometerStyle.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosButton.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosButtonEvent.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosControllerStyle.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosDirection.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosNetworkingState.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosPlayer.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosSimpleJSON.cs" />
-     <Compile Include="Assets\Scripts\Jovios\JoviosUserID.cs" />
      <Compile Include="Assets\Scripts\MenuManager.cs" />
      <Compile Include="Assets\Scripts\PlayerCursor.cs" />
      <Compile Include="Assets\Scripts\Projectile.cs" />
