@@ -179,6 +179,7 @@
      <Compile Include="Assets\Jovios\JoviosAccelerometerStyle.cs" />
      <Compile Include="Assets\Jovios\JoviosButton.cs" />
      <Compile Include="Assets\Jovios\JoviosButtonEvent.cs" />
+     <Compile Include="Assets\Jovios\JoviosControllerConstructor.cs" />
      <Compile Include="Assets\Jovios\JoviosControllerStyle.cs" />
      <Compile Include="Assets\Jovios\JoviosDirection.cs" />
      <Compile Include="Assets\Jovios\JoviosNetworkingState.cs" />
