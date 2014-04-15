@@ -140,18 +140,24 @@ public class Jovios : MonoBehaviour {
 		GetPlayer(jUID).RemoveAllControllerListeners();
 	}
 	
+	public void SetControls(JoviosUserID jUID, string presetController){
+		if(controllerStyles.ContainsKey(presetController)){
+			JoviosControllerStyle jcs = new JoviosControllerStyle();
+			GameObject go = controllerStyles[presetController];
+			for(int i = 0; i < go.transform.childCount; i++){
+				go.transform.GetChild(i).GetComponent<JoviosControllerConstructor>().AddControllerComponent(jcs);
+			}
+			SetControls(jUID, jcs);
+		}
+		else{
+			Debug.Log ("wrong key: " + presetController);
+		}
+	}
+	
 	//this will set the controlls of a given player
 	public void SetControls(JoviosUserID jUID, JoviosControllerStyle controllerStyle){
 		GetPlayer(jUID).SetControllerStyle(controllerStyle);
 		AddToPacket(jUID, controllerStyle.GetJSON());
-	}
-	//this will set the controlls of all players
-	public void SetControls(JoviosControllerStyle controllerStyle){
-		foreach(JoviosPlayer player in players){
-			JoviosUserID jUID = player.GetUserID();
-			GetPlayer(jUID).SetControllerStyle(controllerStyle);
-			AddToPacket(jUID, controllerStyle.GetJSON());
-		}
 	}
 	
 	//When a controller connects it will check the version so that it can know if the controller is out of date.  If the game is out of date the controller should still work with it (only 1.0.0 and greater)
@@ -169,6 +175,19 @@ public class Jovios : MonoBehaviour {
 		else{
 			Debug.Log ("controller out of date");
 		}
+	}
+	
+	Dictionary<string, GameObject> controllerStyles = new Dictionary<string, GameObject>();
+	Dictionary<string, Texture2D> exportTextures = new Dictionary<string, Texture2D>();
+	public void StartServer(List<GameObject> setControllerStyles, List<Texture2D> setExportTextures, string thisGameName = ""){
+		JoviosControllerStyle jcs = new JoviosControllerStyle();
+		foreach(GameObject go in setControllerStyles){
+			controllerStyles.Add(go.name, go);
+		}
+		foreach(Texture2D tex in setExportTextures){
+			exportTextures.Add(tex.name, tex);
+		}
+		StartServer ();
 	}
 	
 	//this starts the unity server and udp broadcast to local network
@@ -268,6 +287,10 @@ public class Jovios : MonoBehaviour {
 		networkView.RPC ("SendPacket",player,playerJSON);
 		networkPlayers.Add(networkPlayerCount, player);
 		networkPlayerCount ++;
+		foreach(KeyValuePair<string, Texture2D> kvp in exportTextures){
+			Debug.Log (kvp.Key);
+			networkView.RPC ("SendImage",player, kvp.Key, kvp.Value.EncodeToPNG());
+		}
 	}
 	
 	//this is the unity newtorkign connection and disconnection information
@@ -385,6 +408,9 @@ public class Jovios : MonoBehaviour {
 	[RPC] void SendPacket(string packet){
 		packet = packet.Replace("'","\"");
 		ParsePacket(packet);
+	}
+	[RPC] void SendImage(string imageName, byte[] imageData){
+
 	}
 	//this parses the incoming packets
 	private void ParsePacket(string packet){

@@ -26,8 +26,8 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	public static Jovios jovios;
 	public Material selectedArenaTile;
 	public Material deselectedArenaTile;
-	public List<string> controlStyleNames = new List<string>();
 	public List<GameObject> controlStyleObjects = new List<GameObject>();
+	public List<Texture2D> exportTextures = new List<Texture2D>();
 	
 	void Awake(){
 		jovios = Jovios.Create();
@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	// Use this for initialization
 	void Start () {
+		jovios.StartServer(controlStyleObjects, exportTextures, "Bots");
 		jovios.AddPlayerListener(this);
 		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4, tieBreaker}; 
 		chosenArena = (GameObject) GameObject.Instantiate(arenaSelection, Vector3.zero, Quaternion.identity);
@@ -154,23 +155,5 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 				robot.GetChild(i).renderer.material.color = Color.grey;
 			}
 		}
-	}
-
-	public static JoviosControllerStyle SetControls(ControlStyle controls){
-		JoviosControllerStyle controllerStyle = new JoviosControllerStyle();
-		switch(controls){
-		case ControlStyle.PlayAgain:
-			controllerStyle.AddButton1(new Vector2(0, 0), new Vector2(1.5F, 1.5F), "mc", "Play Again!", "Play Again!");
-			break;
-		case ControlStyle.Cursor:
-			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.6F), "bl", "left", "left");
-			controllerStyle.AddButton1(new Vector2(-0.7F, 1F), new Vector2(1.2F, 1.6F), "br", "Click cursor", "Click");
-			break;
-		case ControlStyle.Robot:
-			controllerStyle.AddJoystick(new Vector2(0.7F, 1F), new Vector2(1.2F, 1.6F), "bl", "left");
-			controllerStyle.AddJoystick(new Vector2(-0.7F, 1F), new Vector2(1.2F, 1.6F), "br", "right");
-			break;
-		}
-		return controllerStyle;
 	}
 }

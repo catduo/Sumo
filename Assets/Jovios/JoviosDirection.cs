@@ -16,19 +16,7 @@ public class JoviosDirection{
 	public string GetJSON(){
 		return JSON;
 	}
-	public JoviosDirection(string setDescription, string setSimplePosition, string setResponse = ""){
-		description = setDescription;
-		if(setResponse == ""){
-			response = setDescription;
-		}
-		else{
-			response = setResponse;
-		}
-		direction = Vector2.zero;
-		simplePosition = setSimplePosition;
-		JSON = "{'type':'joystick','position':'"+simplePosition+"', 'description':['"+description+"'],'response':['"+response+"']}";
-	}
-	public JoviosDirection(Vector2 setPostion, Vector2 setScale, string setAnchor, string setDescription, string setResponse = ""){
+	public JoviosDirection(Vector2 setPostion, Vector2 setScale, string setAnchor, string setDescription, string setResponse = "", string setColor = "", int setDepth = 0){
 		description = setDescription;
 		if(setResponse == ""){
 			response = setDescription;

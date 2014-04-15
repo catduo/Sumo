@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class JoviosButton{
 	//these are the setters for the overall styles
-	public JoviosButton(Vector2 setPosition, Vector2 setScale, string setAnchor, string setType, string[] setContent, string[] setResponseKeys, string setPrompt = "", string setSubmit = "", string setCancel = ""){
+	public JoviosButton(Vector2 setPosition, Vector2 setScale, string setAnchor, string setType, string[] setContent, string[] setResponseKeys, string setPrompt = "", string setSubmit = "", string setCancel = "", string setColor = "", int setDepth = 0){
 		type = setType;
 		anchor = setAnchor;
 		submit = setSubmit;

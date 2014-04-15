@@ -30,7 +30,6 @@ public class MenuManager : MonoBehaviour {
 	void Start(){
 		//iPhoneSettings.screenCanDarken = false;
 		jovios = GameManager.jovios;
-		jovios.StartServer("Bots");
 	}
 	
 	void Update(){
@@ -68,14 +67,14 @@ public class MenuManager : MonoBehaviour {
 					foreach(int i in GameManager.winner){
 						Debug.Log (i);
 						jovios.GetPlayer(new JoviosUserID(i)).GetStatusObject().GetComponent<Status>().BreakTie(j);
-						jovios.SetControls(jovios.GetPlayer(new JoviosUserID(i)).GetUserID(), GameManager.SetControls(ControlStyle.Robot));
+						jovios.SetControls(jovios.GetPlayer(new JoviosUserID(i)).GetUserID(), "Robot");
 						j++;
 					}
 				}
 				else{
 					gameState = GameState.GameEnd;
 					for(int i = 0; i < jovios.GetPlayerCount(); i++){
-						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), GameManager.SetControls(ControlStyle.PlayAgain));
+						jovios.SetControls(jovios.GetPlayer(i).GetUserID(), "PlayAgain");
 					}
 					Transform po = GameObject.Find ("PlayerObjects").transform;
 					for(int i = 0; i < po.childCount; i++){
@@ -103,7 +102,7 @@ public class MenuManager : MonoBehaviour {
 				GameObject.Find("SuddenDeath").GetComponent<UIPanel>().enabled = false;
 				for(int i = 0; i < jovios.GetPlayerCount(); i++){
 					Debug.Log ("set cursor");
-					jovios.SetControls(jovios.GetPlayer (i).GetUserID(), GameManager.SetControls(ControlStyle.PlayAgain));
+					jovios.SetControls(jovios.GetPlayer (i).GetUserID(), "PlayAgain");
 				}
 				Transform po = GameObject.Find ("PlayerObjects").transform;
 				for(int i = 0; i < po.childCount; i++){

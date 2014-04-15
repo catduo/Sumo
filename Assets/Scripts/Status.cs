@@ -139,7 +139,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					break;
 					
 				case GameState.ChooseArena:
-					jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.Cursor));
+					jovios.SetControls(myPlayer, "Cursor");
 					Ready ();
 				break;
 					
@@ -149,7 +149,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					break;
 					
 				case GameState.GameEnd:
-					jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.PlayAgain));
+					jovios.SetControls(myPlayer, "PlayAgain");
 					break;
 					
 				case GameState.Menu:
@@ -164,11 +164,12 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 					Camera.main.transform.GetComponent<GameManager>().EndRound();
 				}
 				Ready ();
-				jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.Cursor));
+				jovios.SetControls(myPlayer, "Cursor");
 			}
 			break;
 			
 		case "Click":
+			Debug.Log("click");
 			if(action == "press"){
 				CursorClick();
 			}
@@ -233,7 +234,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		score.color = Color.white;
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = false;
-		jovios.SetControls(myPlayer, GameManager.SetControls(ControlStyle.Robot));
+		jovios.SetControls(myPlayer, "Robot");
 		Ready();
 	}
 	
