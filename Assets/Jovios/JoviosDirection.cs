@@ -16,19 +16,13 @@ public class JoviosDirection{
 	public string GetJSON(){
 		return JSON;
 	}
-	public JoviosDirection(Vector2 setPostion, Vector2 setScale, string setAnchor, string setDescription, string setResponse = "", string setColor = "", int setDepth = 0){
-		description = setDescription;
-		if(setResponse == ""){
-			response = setDescription;
-		}
-		else{
-			response = setResponse;
-		}
+	public JoviosDirection(Vector2 setPostion, Vector2 setScale, string setAnchor, string setResponse, int setDepth = 0, string joystickBackground = "", string joystickBackdrop = "", string joystickArrow = ""){
+		response = setResponse;
 		direction = Vector2.zero;
 		position = setPostion;
 		scale = setScale;
 		anchor = setAnchor;
-		JSON = "{'type':'joystick','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"', 'description':['"+description+"'],'response':['"+response+"']}";
+		JSON = "{'type':'joystick','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"','response':['"+response+"'],'images':['"+joystickArrow+"','"+joystickBackdrop+"','"+joystickBackground+"']}";
 	}
 
 	//this is for any directional inputs, will eventually support arbitrary definitions

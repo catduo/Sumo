@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class JoviosButton{
 	//these are the setters for the overall styles
-	public JoviosButton(Vector2 setPosition, Vector2 setScale, string setAnchor, string setType, string[] setContent, string[] setResponseKeys, string setPrompt = "", string setSubmit = "", string setCancel = "", string setColor = "", int setDepth = 0){
+	public JoviosButton(Vector2 setPosition, Vector2 setScale, string setAnchor, string setType, string[] setContent, string[] setResponseKeys, string setPrompt = "", string setSubmit = "", string setCancel = "", string setColor = "", int setDepth = 0, string image = ""){
 		type = setType;
 		anchor = setAnchor;
 		submit = setSubmit;
@@ -80,7 +80,7 @@ public class JoviosButton{
 				cnt += "']";
 			}
 		}
-		JSON = "{'type':'"+type+"','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"',"+cnt+","+rsp+"}";
+		JSON = "{'type':'"+type+"','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"',"+cnt+","+rsp+",'image':'"+image+"'}";
 	}
 	private Vector2 position;
 	private Vector2 scale;

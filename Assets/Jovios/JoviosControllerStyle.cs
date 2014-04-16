@@ -9,18 +9,15 @@ public class JoviosControllerStyle{
 	public JoviosControllerStyle(){
 	}
 	//the following will add areas, they can only take right or left, but should be updated to take any arbitrary location information
-	public void AddJoystick(Vector2 position, Vector2 scale, string anchor, string description, string response = "", string color = "", int depth = 0){
-		if(response == ""){
-			response = description;
-		}
-		directions.Add(response, new JoviosDirection(position, scale, anchor, description, response, setColor: color, setDepth: depth));
+	public void AddJoystick(Vector2 position, Vector2 scale, string anchor, string response, string joystickBackground = "", string joystickBackdrop = "", string joystickArrow = "", int depth = 0){
+		directions.Add(response, new JoviosDirection(position, scale, anchor, response, setDepth: depth, joystickArrow: joystickArrow, joystickBackdrop: joystickBackdrop, joystickBackground: joystickBackground));
 		AddToJSON(directions[response].GetJSON());
 	}
-	public void AddButton1(Vector2 position, Vector2 scale, string anchor, string description, string response = "", string color = "", int depth = 0){
+	public void AddButton1(Vector2 position, Vector2 scale, string anchor, string description, string response = "", string color = "", int depth = 0, string image = ""){
 		if(response == ""){
 			response = description;
 		}
-		buttons.Add(response, new JoviosButton(position, scale, anchor, "button1", new string[1] {description}, new string[1] {response}, setColor: color, setDepth: depth));
+		buttons.Add(response, new JoviosButton(position, scale, anchor, "button1", new string[1] {description}, new string[1] {response}, setColor: color, setDepth: depth, image: image));
 		AddToJSON(buttons[response].GetJSON());
 	}
 	
@@ -34,6 +31,9 @@ public class JoviosControllerStyle{
 	}
 	public void AddImage(Vector2 position, Vector2 scale, string anchor, string imageNameOrUrl, string color = "", int depth = 0){
 		AddToJSON("{'type':'image','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"','content':'"+imageNameOrUrl+"','color':'"+color+"','depth':"+depth+"}");
+	}
+	public void AddAvatar(Vector2 position, Vector2 scale, string anchor, int depth = 0){
+		AddToJSON("{'type':'avatar','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"','depth':"+depth+"}");
 	}
 
 	

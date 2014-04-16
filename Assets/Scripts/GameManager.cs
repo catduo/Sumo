@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	void Awake(){
 		jovios = Jovios.Create();
 		jovios.iconURL = "http://jovios.com/icons/botaboom.png";
-		jovios.assetBundleURL = "http://jovios.com/bundles/botaboom";
+		//jovios.assetBundleURL = "http://jovios.com/bundles/botaboom";
 	}
 	
 	// Use this for initialization

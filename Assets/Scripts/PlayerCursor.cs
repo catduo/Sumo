@@ -26,8 +26,8 @@ public class PlayerCursor : MonoBehaviour {
 		xMax = Screen.width/Screen.height * 720/2;
 	}
 	
-	void Update(){
-		transform.Translate( new Vector3(speed / 10 * jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").GetDirection().x, speed / 10 * jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").GetDirection().y, 0));
+	void FixedUpdate(){
+		transform.Translate( new Vector3(speed / 4 * jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").GetDirection().x, speed / 4 * jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").GetDirection().y, 0));
 		if(transform.localPosition.x < xMin){
 			transform.localPosition += new Vector3(xMin - transform.localPosition.x, 0, 0);
 		}

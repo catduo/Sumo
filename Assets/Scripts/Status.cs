@@ -158,7 +158,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			}
 			break;
 			
-		case "Play Again!":
+		case "PlayAgain":
 			if(action == "release"){
 				if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown){
 					Camera.main.transform.GetComponent<GameManager>().EndRound();
