@@ -24,6 +24,8 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	private Transform body;
 	
 	private Jovios jovios;
+
+	public AudioClip cursorClick;
 	
 	bool IJoviosControllerListener.ButtonEventReceived(JoviosButtonEvent e){
 		OnButton(e.GetResponse(), e.GetAction());
@@ -71,7 +73,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			crown.renderer.enabled = false;
 			score.text = "";
 			jovios.AddControllerListener(this, myPlayer);
-			OnButton("Join Game", "release");
+			jovios.SetControls(myPlayer, "PlayAgain");
 		}
 		transform.position = GameObject.Find ("PlayerStatusArea" + (playerNumber + 1).ToString()).transform.position;
 		transform.FindChild("Immunity").renderer.enabled = false;
@@ -96,6 +98,9 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		body.renderer.material.color = primary;
 		if(myPlayerObject != null){
 			jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().SetMyPlayer(playerInfo);
+		}
+		if(myCursorObject != null){
+			jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<PlayerCursor>().SetMyPlayer(playerInfo);
 		}
 	}
 	
@@ -169,6 +174,8 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			break;
 			
 		case "Click":
+			GetComponent<AudioSource>().clip = cursorClick;
+			GetComponent<AudioSource>().Play();
 			Debug.Log("click");
 			if(action == "press"){
 				CursorClick();

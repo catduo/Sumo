@@ -10,6 +10,8 @@ public class Projectile : MonoBehaviour {
 	public float fireDuration = 1;
 	public bool is_strong = false;
 	public bool is_range = false;
+
+	public AudioClip fizzle;
 	
 	// Use this for initialization
 	void Start () {
@@ -28,6 +30,8 @@ public class Projectile : MonoBehaviour {
 			}
 			rigidbody.velocity = facing * 10;
 			if(fireTime + fireDuration / 2 < Time.time){
+				GetComponent<AudioSource>().clip = fizzle;
+				GetComponent<AudioSource>().Play();
 				Destroy(gameObject);
 			}
 		}

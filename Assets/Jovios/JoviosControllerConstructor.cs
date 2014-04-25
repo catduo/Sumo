@@ -7,7 +7,8 @@ public enum JoviosControllerConstructorType{
 	Button,
 	Label,
 	Image,
-	Avatar
+	Avatar,
+	Customize
 }
 public enum JoviosControlConstructorAlignment{
 	Center,
@@ -42,6 +43,10 @@ public class JoviosControllerConstructor : MonoBehaviour {
 		switch(jcct){
 		case JoviosControllerConstructorType.Button:
 			jcs.AddButton1(positioning, new Vector2(transform.GetComponent<UIWidget>().width, transform.GetComponent<UIWidget>().height), anchors, transform.FindChild("Label").GetComponent<UILabel>().text, transform.name, color: transform.FindChild("Button1").GetComponent<UITexture>().color.ToString(), depth: transform.GetComponent<UIWidget>().depth, image: transform.FindChild("Button1").GetComponent<UITexture>().mainTexture.name);
+			break;
+
+		case JoviosControllerConstructorType.Customize:
+			jcs.AddButton1(positioning, new Vector2(transform.GetComponent<UIWidget>().width, transform.GetComponent<UIWidget>().height), anchors, transform.FindChild("Label").GetComponent<UILabel>().text, "SPECIAL:CUSTOMIZE", color: transform.FindChild("Button1").GetComponent<UITexture>().color.ToString(), depth: transform.GetComponent<UIWidget>().depth, image: transform.FindChild("Button1").GetComponent<UITexture>().mainTexture.name);
 			break;
 
 		case JoviosControllerConstructorType.Joystick:

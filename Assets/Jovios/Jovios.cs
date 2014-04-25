@@ -180,14 +180,13 @@ public class Jovios : MonoBehaviour {
 	Dictionary<string, GameObject> controllerStyles = new Dictionary<string, GameObject>();
 	Dictionary<string, Texture2D> exportTextures = new Dictionary<string, Texture2D>();
 	public void StartServer(List<GameObject> setControllerStyles, List<Texture2D> setExportTextures, string thisGameName = ""){
-		JoviosControllerStyle jcs = new JoviosControllerStyle();
 		foreach(GameObject go in setControllerStyles){
 			controllerStyles.Add(go.name, go);
 		}
 		foreach(Texture2D tex in setExportTextures){
 			exportTextures.Add(tex.name, tex);
 		}
-		StartServer ();
+		StartServer (thisGameName);
 	}
 	
 	//this starts the unity server and udp broadcast to local network
@@ -196,7 +195,7 @@ public class Jovios : MonoBehaviour {
 	public void StartServer(string thisGameName = ""){
 		gameCode = Mathf.FloorToInt(UnityEngine.Random.value * 100000);
 		udpPort = 24000;
-		unityPort = 25002;
+		unityPort = 25008;
 		StartUnity();
 		Application.runInBackground = true;
 		SetGameName(thisGameName);
@@ -259,12 +258,12 @@ public class Jovios : MonoBehaviour {
 	private const string typeName = "Jovios";
 
 	//this sets the gamename
-	public void SetGameName(string newGameName){
-		if(newGameName.Length >= 4){
+	void SetGameName(string newGameName){
+		if(newGameName != ""){
 			gameName = newGameName;
 		}
 		else{
-			gameName = Guid.NewGuid().ToString().Split('-')[1];
+			gameName = "New Game";
 		}
 		StartCoroutine("GetIP");
 	}    
@@ -457,6 +456,9 @@ public class Jovios : MonoBehaviour {
 		if(myJSON["packet"]["playerConnected"] != null){
 			PlayerConnectedInterpret = myJSON.ToString();
 		}
+		if(myJSON["packet"]["playerUpdated"] != null){
+			PlayerUpdated(myJSON["packet"]["playerUpdated"]["deviceID"].AsInt, myJSON["packet"]["playerUpdated"]["primaryR"].AsFloat, myJSON["packet"]["playerUpdated"]["primaryG"].AsFloat, myJSON["packet"]["playerUpdated"]["primaryB"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryR"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryG"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryB"].AsFloat, myJSON["packet"]["playerUpdated"]["playerName"]);
+		}
 		if(myJSON["packet"]["action"] == "closeSocket"){
 			PlayerDisconnectedInterpret = myJSON.ToString();
 		}
@@ -553,10 +555,10 @@ public class Jovios : MonoBehaviour {
 	}
 	
 	// this will be triggered when information about a player is updated, like colors or names
-	public void PlayerUpdated(int playerNumber, float primaryR, float primaryG, float primaryB, float secondaryR, float secondaryG, float secondaryB, string playerName, int deviceID){
-		players[playerNumber].NewPlayerInfo(players.Count, playerName, new Color(primaryR, primaryG, primaryB, 1), new Color(secondaryR, secondaryG, secondaryB, 1));
+	public void PlayerUpdated(int deviceID, float primaryR, float primaryG, float primaryB, float secondaryR, float secondaryG, float secondaryB, string playerName){
+		GetPlayer(new JoviosUserID(deviceID)).NewPlayerInfo(deviceIDToPlayerNumber[deviceID], playerName, new Color(primaryR, primaryG, primaryB, 1), new Color(secondaryR, secondaryG, secondaryB, 1));
 		foreach(IJoviosPlayerListener listener in playerListeners){
-			if(listener.PlayerUpdated(players[playerNumber])){
+			if(listener.PlayerUpdated(GetPlayer(new JoviosUserID(deviceID)))){
 				break;
 			}
 		}

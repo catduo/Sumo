@@ -14,6 +14,8 @@ public class TutorialArena : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		GameObject.Find ("PlayerStatus").transform.localPosition = new Vector3(1000,5,10);
+		GameObject.Find ("PlayerStatusAreas").transform.localPosition = new Vector3(1000,5,10);
 		GameObject.Find("CountdownCorner").GetComponent<Countdown>().countTime = 10;
 		StartCoroutine("ToStepOne");
 		GameObject.Find("Tutorial").GetComponent<UIPanel>().enabled = true;
@@ -94,5 +96,7 @@ public class TutorialArena : MonoBehaviour {
 	void OnDisable(){
 		tutorialStep = 0;
 		playersInsideGreenArea = new List<int>();
+		GameObject.Find ("PlayerStatus").transform.localPosition = new Vector3(0,5,10);
+		GameObject.Find ("PlayerStatusAreas").transform.localPosition = new Vector3(0,5,10);
 	}
 }

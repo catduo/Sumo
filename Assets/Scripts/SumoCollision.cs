@@ -13,6 +13,14 @@ public class SumoCollision : MonoBehaviour {
 	
 	private Jovios jovios;
 	
+	public AudioClip shotHit;
+	public AudioClip powerupGained;
+	public AudioClip invincibility;
+	public AudioClip rampaging;
+	public AudioClip bumper;
+	public AudioClip death;
+	public AudioClip newRobot;
+	
 	void Start(){
 		jovios = GameManager.jovios;
 		playerNumber = transform.parent.GetComponent<Sumo>().playerNumber;
@@ -21,6 +29,8 @@ public class SumoCollision : MonoBehaviour {
 	void Update(){
 		if(is_ringOut){
 			if(ringOutDuration + ringOutTime < Time.time){
+				GetComponent<AudioSource>().clip = newRobot;
+				GetComponent<AudioSource>().Play();
 				is_ringOut = false;
 				transform.position = GameObject.Find("PlayerSpawners").transform.GetChild(Mathf.FloorToInt(GameObject.Find("PlayerSpawners").transform.childCount * Random.value)).transform.position;
 				rigidbody.velocity = Vector3.zero;
@@ -38,48 +48,14 @@ public class SumoCollision : MonoBehaviour {
 	
 	void OnCollisionEnter(Collision collision){
 		switch(collision.transform.name){
-		case "Arena1Platform":
-			for(int i = 0; i < GameObject.Find("Arena1").transform.childCount; i ++){
-				if(GameObject.Find("Arena1").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena1").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
-				}
-			}
-			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 1;
-			break;
-		case "Arena2Platform":
-			for(int i = 0; i < GameObject.Find("Arena2").transform.childCount; i ++){
-				if(GameObject.Find("Arena2").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena2").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
-				}
-			}
-			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 2;
-			break;
-		case "Arena3Platform":
-			for(int i = 0; i < GameObject.Find("Arena3").transform.childCount; i ++){
-				if(GameObject.Find("Arena3").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena3").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
-				}
-			}
-			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 3;
-			break;
-		case "Arena4Platform":
-			for(int i = 0; i < GameObject.Find("Arena4").transform.childCount; i ++){
-				if(GameObject.Find("Arena4").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena4").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().selectedArenaTile;
-				}
-			}
-			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 4;
-			break;
-		case "Platform":
-			//collision.transform.renderer.enabled = true;
-			jovios.GetPlayer(playerNumber).GetStatusObject().GetComponent<Status>().chosenArena = 0;
-			break;
 		case "Rampage":
 			lastPlayerHit = collision.transform.parent.GetComponent<Sumo>().myPlayer.GetIDNumber();
 			rigidbody.velocity = (collision.transform.localScale.x * (transform.position - collision.transform.position) * 100 / transform.parent.GetComponent<Sumo>().defense);
 			break;
 		case "Hand":
 			if(collision.transform.GetComponent<Projectile>().playerNumber != transform.parent.GetComponent<Sumo>().myPlayer.GetIDNumber()){
+				GetComponent<AudioSource>().clip = shotHit;
+				GetComponent<AudioSource>().Play();
 				lastPlayerHit = collision.transform.GetComponent<Projectile>().playerNumber;
 				rigidbody.velocity = (collision.transform.localScale.x * (transform.position - collision.transform.position) * 100 / transform.parent.GetComponent<Sumo>().defense);
 				if(!collision.transform.GetComponent<Projectile>().is_fired){
@@ -95,46 +71,12 @@ public class SumoCollision : MonoBehaviour {
 		}
 	}
 	
-	void OnCollisionExit(Collision collision){
-		switch(collision.transform.name){
-		case "Arena1Platform":
-			for(int i = 0; i < GameObject.Find("Arena1").transform.childCount; i ++){
-				if(GameObject.Find("Arena1").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena1").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
-				}
-			}
-			break;
-		case "Arena2Platform":
-			for(int i = 0; i < GameObject.Find("Arena2").transform.childCount; i ++){
-				if(GameObject.Find("Arena2").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena2").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
-				}
-			}
-			break;
-		case "Arena3Platform":
-			for(int i = 0; i < GameObject.Find("Arena3").transform.childCount; i ++){
-				if(GameObject.Find("Arena3").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena3").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
-				}
-			}
-			collision.transform.renderer.enabled = false;
-			break;
-		case "Arena4Platform":
-			for(int i = 0; i < GameObject.Find("Arena4").transform.childCount; i ++){
-				if(GameObject.Find("Arena4").transform.GetChild(i).name == "Plane"){
-					GameObject.Find("Arena4").transform.GetChild(i).renderer.material = GameObject.Find("MainCamera").GetComponent<GameManager>().deselectedArenaTile;
-				}
-			}
-			break;
-		default:
-			break;
-		}
-	}
-	
 	void OnTriggerEnter(Collider other){
 		if(transform.parent != other.transform.parent){
 			switch(other.transform.name){
 			case "Bounds":
+				GetComponent<AudioSource>().clip = death;
+				GetComponent<AudioSource>().Play();
 				is_ringOut = true;
 				ringOutTime = Time.time;
 				rigidbody.velocity = new Vector3(rigidbody.velocity.x/4, rigidbody.velocity.y/4,0);
@@ -169,11 +111,26 @@ public class SumoCollision : MonoBehaviour {
 				}
 				break;
 			case "Bumper(Clone)":
+				GetComponent<AudioSource>().clip = bumper;
+				GetComponent<AudioSource>().Play();
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);
 				break;
 			case "BonusBox":
+				GetComponent<AudioSource>().clip = powerupGained;
+				GetComponent<AudioSource>().Play();
 				transform.parent.GetComponent<Sumo>().is_boostActive = true;
 				transform.parent.GetComponent<Sumo>().activeBoost = other.transform.parent.GetComponent<BonusSpawner>().bonusType;
+				switch(other.transform.parent.GetComponent<BonusSpawner>().bonusType){
+				case BonusType.Immunity:
+					GetComponent<AudioSource>().clip = invincibility;
+					GetComponent<AudioSource>().Play();
+					break;
+
+				case BonusType.Rampage:
+					GetComponent<AudioSource>().clip = rampaging;
+					GetComponent<AudioSource>().Play();
+					break;
+				}
 				transform.parent.GetComponent<Sumo>().boostStart = Time.time;
 				transform.parent.GetComponent<Sumo>().boostDuration = 5;
 				other.transform.FindChild(other.transform.parent.GetComponent<BonusSpawner>().bonusType.ToString()).GetChild(0).renderer.enabled = false;
@@ -187,6 +144,8 @@ public class SumoCollision : MonoBehaviour {
 		if(transform.parent != other.transform.parent){
 			switch(other.transform.name){
 			case "Bumper":
+				GetComponent<AudioSource>().clip = bumper;
+				GetComponent<AudioSource>().Play();
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);
 				break;
 

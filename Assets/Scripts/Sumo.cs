@@ -44,6 +44,8 @@ public class Sumo : MonoBehaviour {
 	
 	private Jovios jovios;
 
+	public AudioClip fireBullet;
+
 	// Use this for initialization
 	void Start () {
 		jovios = GameManager.jovios;
@@ -246,6 +248,8 @@ public class Sumo : MonoBehaviour {
 				if(is_range){
 					hand.GetComponent<Projectile>().Range();
 				}
+				GetComponent<AudioSource>().clip = fireBullet;
+				GetComponent<AudioSource>().Play();
 				hand.GetComponent<Projectile>().facing = body.up;
 				hand.GetComponent<Projectile>().fireDuration = range;
 				is_attacking = false;
@@ -260,6 +264,8 @@ public class Sumo : MonoBehaviour {
 				hand.name = "Hand";
 				hand.parent = transform;
 				hand.localScale = new Vector3(handScale, handScale, handScale);
+				hand.collider.enabled = false;
+				hand.FindChild("Sphere").renderer.enabled = false;
 			}
 			else{
 				hand.position = body.up  + body.position;

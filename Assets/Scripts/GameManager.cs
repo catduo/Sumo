@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	// Use this for initialization
 	void Start () {
-		jovios.StartServer(controlStyleObjects, exportTextures, "Bots");
+		jovios.StartServer(controlStyleObjects, exportTextures, "BotABoom");
 		jovios.AddPlayerListener(this);
 		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4, tieBreaker}; 
 		chosenArena = (GameObject) GameObject.Instantiate(arenaSelection, Vector3.zero, Quaternion.identity);
@@ -79,6 +79,9 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 		Destroy(p.GetStatusObject());
 		for(int i = 0; i < jovios.GetPlayerCount(); i++){
 			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().SetMyPlayer(jovios.GetPlayer(i));
+		}
+		if(winner.Contains(p.GetUserID().GetIDNumber())){
+			winner.Remove(p.GetUserID().GetIDNumber());
 		}
 		return false;
 	}
@@ -155,5 +158,9 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 				robot.GetChild(i).renderer.material.color = Color.grey;
 			}
 		}
+	}
+
+	public void ExitGame(){
+		Application.Quit();
 	}
 }

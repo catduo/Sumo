@@ -20,6 +20,7 @@ public class JoviosPlayer{
 		playerName = pName;
 		primary = pPrimary;
 		secondary = pSecondary;
+		Debug.Log(pPrimary.ToString ());
 	}
 	//this is the list of listeners that will trigger when events come from the controller app
 	private List<IJoviosControllerListener> controllerListeners = new List<IJoviosControllerListener>();
