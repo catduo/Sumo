@@ -5,7 +5,7 @@ using System.Collections;
 
 public class PlayerCursor : MonoBehaviour {
 	
-	float speed = 0.3F;
+	float speed = 0.15F;
 	public JoviosUserID myPlayer;
 	public int playerNumber;
 	public string playerName;
@@ -22,8 +22,8 @@ public class PlayerCursor : MonoBehaviour {
 		transform.localScale = Vector3.one;
 		yMin = -720/2;
 		yMax = 720/2;
-		xMin = - Screen.width/Screen.height * 720/2;
-		xMax = Screen.width/Screen.height * 720/2;
+		xMin = -transform.parent.GetComponent<UIPanel>().width/2;
+		xMax = transform.parent.GetComponent<UIPanel>().width/2;
 	}
 	
 	void FixedUpdate(){

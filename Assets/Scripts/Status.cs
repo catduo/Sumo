@@ -138,26 +138,21 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		case "Join Game":
 			if(action == "release"){
 				switch(MenuManager.gameState){
-				case GameState.Countdown:
+					
+				case GameState.ChooseArena:
 					Ready ();
+					break;
+
+				case GameState.Countdown:
 					StartRound();
 					break;
 					
-				case GameState.ChooseArena:
-					jovios.SetControls(myPlayer, "Cursor");
-					Ready ();
-				break;
-					
 				case GameState.GameOn:
-					Ready ();
 					StartRound();
 					break;
 					
 				case GameState.GameEnd:
 					jovios.SetControls(myPlayer, "PlayAgain");
-					break;
-					
-				case GameState.Menu:
 					break;
 				}
 			}
@@ -165,18 +160,16 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			
 		case "PlayAgain":
 			if(action == "release"){
-				if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown){
+				if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown && MenuManager.gameState != GameState.GameEnd){
 					Camera.main.transform.GetComponent<GameManager>().EndRound();
 				}
 				Ready ();
-				jovios.SetControls(myPlayer, "Cursor");
 			}
 			break;
 			
 		case "Click":
 			GetComponent<AudioSource>().clip = cursorClick;
 			GetComponent<AudioSource>().Play();
-			Debug.Log("click");
 			if(action == "press"){
 				CursorClick();
 			}
@@ -211,6 +204,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
 			myCursorObject = newPlayerObject;
 		}
+		jovios.SetControls(myPlayer, "Cursor");
 	}
 	void CursorClick(){
 		RaycastHit hitInfo;
@@ -234,6 +228,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			jovios.GetPlayer(myPlayer).AddPlayerObject(newPlayerObject);
 			myPlayerObject = newPlayerObject;
 		}
+		jovios.SetControls(myPlayer, "Robot");
 	}
 	
 	public void StartRound(){
@@ -241,7 +236,6 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 		score.color = Color.white;
 		xMark.renderer.enabled = false;
 		checkMark.renderer.enabled = false;
-		jovios.SetControls(myPlayer, "Robot");
 		Ready();
 	}
 	

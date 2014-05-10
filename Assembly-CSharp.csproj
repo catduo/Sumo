@@ -186,6 +186,27 @@
      <Compile Include="Assets\Jovios\JoviosPlayer.cs" />
      <Compile Include="Assets\Jovios\JoviosSimpleJSON.cs" />
      <Compile Include="Assets\Jovios\JoviosUserID.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Client.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\EndPointClient.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\ErrorEventArgs.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Helpers\SocketIOHandshake.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Helpers\SocketIOMessageTypes.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\IClient.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\IEndPointClient.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\MessageEventArgs.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\AckMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\ConnectMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\DisconnectMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\ErrorMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\EventMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\Heartbeat.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\Helper\JsonEncodedEventMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\IMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\JSONMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\Message.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\NoopMessage.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\RegistrationManager.cs" />
+     <Compile Include="Assets\Jovios\UnitySocketIO\SocketIO\socketio\Messages\TextMessage.cs" />
      <Compile Include="Assets\Scripts\ArenaSelection.cs" />
      <Compile Include="Assets\Scripts\ArenaSpawning.cs" />
      <Compile Include="Assets\Scripts\BonusSpawner.cs" />
@@ -233,6 +254,33 @@
      <None Include="Assets\Art\NGUI\Resources\Shaders\Unlit - Transparent Colored (SoftClip).shader" />
      <None Include="Assets\Art\NGUI\Examples\Models\Orc Armor\Orc Armor.shader" />
      <None Include="Assets\Art\NGUI\Resources\Localization.txt" />
+ <Reference Include="P31RestKit">
+ <HintPath>Assets\Jovios\P31RestKit.dll</HintPath>
+ </Reference>
+ <Reference Include="pomelo-unityclient">
+ <HintPath>Assets\Jovios\pomelo-unityclient.dll</HintPath>
+ </Reference>
+ <Reference Include="SimpleJson">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\SimpleJson.dll</HintPath>
+ </Reference>
+ <Reference Include="SocketIO">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\SocketIO.dll</HintPath>
+ </Reference>
+ <Reference Include="SuperSocket.ClientEngine.Common">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\SuperSocket.ClientEngine.Common.dll</HintPath>
+ </Reference>
+ <Reference Include="SuperSocket.ClientEngine.Core">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\SuperSocket.ClientEngine.Core.dll</HintPath>
+ </Reference>
+ <Reference Include="SuperSocket.ClientEngine.Protocol">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\SuperSocket.ClientEngine.Protocol.dll</HintPath>
+ </Reference>
+ <Reference Include="SuperSocket.ClientEngine.Proxy">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\SuperSocket.ClientEngine.Proxy.dll</HintPath>
+ </Reference>
+ <Reference Include="WebSocket4Net">
+ <HintPath>Assets\Jovios\UnitySocketIO\SocketIO\bin\Debug\WebSocket4Net.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

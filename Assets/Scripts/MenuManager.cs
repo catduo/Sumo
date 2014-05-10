@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public enum GameState{
 	GameOn,
 	ChooseArena,
-	Menu,
 	Countdown,
 	GameEnd,
 	SuddenDeath
@@ -14,9 +13,10 @@ public enum GameState{
 public class MenuManager : MonoBehaviour {
 	
 	public static GameState gameState = GameState.ChooseArena;
-	public static GameState previousGameState = GameState.Menu;
+	public static GameState previousGameState = GameState.ChooseArena;
 	static public bool is_credits = false;
 	static public bool is_loadingNewGame = false;
+	static public bool is_menu = false;
 	static public float lastTickTime;
 	private float musicVolume = 1;
 	private float sfxVolume = 1;
@@ -30,12 +30,11 @@ public class MenuManager : MonoBehaviour {
 	void Start(){
 		//iPhoneSettings.screenCanDarken = false;
 		jovios = GameManager.jovios;
+		GameObject.Find ("Menu").transform.localPosition = 1000 * Vector3.one;
 	}
 	
 	void Update(){
 		switch(gameState){
-		case GameState.Menu:
-			break;
 			
 		case GameState.ChooseArena:
 			GameObject.Find("VictoryRobot").transform.position = new Vector3(0,50,0);
@@ -123,6 +122,12 @@ public class MenuManager : MonoBehaviour {
 		}
 	}
 	public void ToggleMenu(){
+		if(is_menu){
+			GameObject.Find ("Menu").transform.localPosition = 1000 * Vector3.one;
+		}
+		else{
+			GameObject.Find ("Menu").transform.localPosition = Vector3.zero;
+		}
 		GameObject.Find ("Menu").GetComponent<UIPanel>().enabled = !GameObject.Find ("Menu").GetComponent<UIPanel>().enabled;
 	}
 	public void SFXVolume(){

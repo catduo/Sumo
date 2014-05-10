@@ -7,7 +7,11 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using JoviosSimpleJSON;
+using SimpleJson;
 using System.Text;
+using WebSocket4Net;
+using SocketIOClient;
+using pomeloUnityClient;
 using System;
 
 //TODO List
@@ -191,34 +195,95 @@ public class Jovios : MonoBehaviour {
 	
 	//this starts the unity server and udp broadcast to local network
 	public string iconURL{get; set;}
-	public int gameCode{get; private set;}
+	public string gameCode{get; private set;}
 	public void StartServer(string thisGameName = ""){
-		gameCode = Mathf.FloorToInt(UnityEngine.Random.value * 100000);
+		NodeLinux();
 		udpPort = 24000;
-		unityPort = 25008;
+		unityPort = 25011;
 		StartUnity();
 		Application.runInBackground = true;
 		SetGameName(thisGameName);
 		udpEndpoint = new IPEndPoint(IPAddress.Any, udpPort);
 		udpBroadcastEndpoint = new IPEndPoint(IPAddress.Broadcast, udpPort);
-		StartCoroutine("BroadcastPresence");
-		try{
-			tcpClientWeb = new TcpClient("54.186.20.76", 8080);
-			sWeb = tcpClientWeb.GetStream();
-			srWeb = new StreamReader(sWeb);
-			swWeb = new StreamWriter(sWeb);
-			string toSend = "{'packet':{'action':'initializeSocket','ip':'"+Network.player.externalIP+"','gameCode':'"+gameCode+"','deviceID':0}}";
-			swWeb.WriteLine(toSend);
-			swWeb.AutoFlush = true;
-			Thread t = new Thread(new ThreadStart(TCPListening));
-			t.Start();
-		}
-		catch(Exception e){
-			Debug.Log(e.Message);
-		}
+		//StartCoroutine("BroadcastPresence");
 		Debug.Log("begun");
 		//Thread tr = new Thread(new ThreadStart(UDPListening));
 		//tr.Start();
+	}
+	
+	PomeloClient pclient;
+	//Login the chat application and new PomeloClient.
+	void NodeLinux() {
+		string url = "54.187.155.212:3014";
+		pclient = new PomeloClient(url);
+		pclient.init();
+		JsonObject userMessage = new JsonObject();
+		userMessage.Add("uid", "0");
+		pclient.request("gate.gateHandler.queryEntry", userMessage, (data)=>{
+			System.Object code = null;
+			if(data.TryGetValue("code", out code)){
+				if(Convert.ToInt32(code) == 500) {
+					return;
+				} else {
+					pclient.disconnect();
+					pclient = null;
+					System.Object host, port;
+					if (data.TryGetValue("host", out host) && data.TryGetValue("port", out port)) {
+						pclient = new PomeloClient("http://" + "54.187.155.212" + ":" + port.ToString());
+						pclient.init();
+						pclient.On("onAdd", (data3)=> {
+							var userJoined = JSON.Parse(data3.ToString());
+							Debug.Log(userJoined["body"]["user"]);
+						});
+						pclient.On("onResponse", (data2)=> {
+							addMessage(data2.ToString());
+						});
+						pclient.On("onLeave", (data4)=> {
+							var disconnectJSON = JSON.Parse(data4.ToString());
+							PlayerDisconnectedInterpret.Add(disconnectJSON["body"]["user"].AsInt);
+						});
+						pclient.On("onError", (data5)=> {
+							System.Object nodeLinuxError;
+							data5.TryGetValue("body", out nodeLinuxError);
+							Debug.Log(nodeLinuxError.ToString());
+						});
+						JoinNodeLinux();
+					}
+				} 
+			}
+		});
+		externalIP = Network.player.externalIP;
+	}
+
+	void addMessage(string messge) {
+		var packet = JSON.Parse(messge);
+		mainThreadInterpret = packet["body"]["msg"];
+	}
+	
+	//Entry chat application.
+	void JoinNodeLinux(){
+		JsonObject userMessage = new JsonObject();
+		userMessage.Add("username", "0");
+		userMessage.Add("rid", "0");
+		userMessage.Add("hosting", true);
+		if (pclient != null) {
+			pclient.request("connector.entryHandler.enter", userMessage, (data)=>{
+				Debug.Log (data.ToString());
+				System.Object gameID;
+				data.TryGetValue("gameID", out gameID);
+				gameCode = gameID.ToString();
+			});
+		}
+	}
+	
+	public void SendNodeLinux(string content, string target = "*"){
+		JsonObject message = new JsonObject();
+		message.Add("rid", gameCode);
+		message.Add("content", content);
+		message.Add("from", "0");
+		message.Add("target", target);	
+		pclient.request("chat.chatHandler.send", message, (data) => {
+		});
 	}
 
 
@@ -243,11 +308,6 @@ public class Jovios : MonoBehaviour {
 			externalIP = Network.player.externalIP;
 		}
 		string toSend = gameName+";"+Network.player.ipAddress+";"+gameCode+";"+unityPort+";"+iconURL;
-		MasterServer.RegisterHost(typeName, toSend);
-		WWWForm form = new WWWForm();
-		form.AddField("action","create");
-		form.AddField ("name",gameName);
-		WWW post_req = new WWW("http://localhost/foo.php",form);
 		if(Application.isWebPlayer){
 			Application.ExternalCall("SetGameName", gameName);
 		}
@@ -315,8 +375,6 @@ public class Jovios : MonoBehaviour {
 	}
 
 	int webServerPort = 8080;
-	int tcpPort = 26000;
-	TcpClient tcpClientWeb = new TcpClient();
 	NetworkStream sWeb;
 	StreamReader srWeb;
 	StreamWriter swWeb;		
@@ -325,21 +383,6 @@ public class Jovios : MonoBehaviour {
 	IPEndPoint udpEndpoint;
 	IPEndPoint udpBroadcastEndpoint;
 
-	string tcpReadLine = "";
-	private void TCPListening(){
-		while(isTrue){
-			try{
-				tcpReadLine += srWeb.ReadLine();
-				if(tcpReadLine != ""){
-					SendPacket(tcpReadLine);
-				}
-			}
-			catch(Exception e){
-				Debug.Log(e.Message);
-			}
-		}
-	}
-	
 	
 	
 	private Dictionary<int, string> packetJSON = new Dictionary<int, string>();
@@ -347,8 +390,8 @@ public class Jovios : MonoBehaviour {
 	private Dictionary<int, string> connectionJSON = new Dictionary<int, string>();
 	string mainThreadInterpret = "";
 	string PlayerConnectedInterpret = "";
-	string PlayerDisconnectedInterpret = "";
 	string ButtonInterpret = "";
+	List<int> PlayerDisconnectedInterpret = new List<int>();
 	string udpThreadInterpret = "";
 	//this sends out the packets as they are generated
 	void FixedUpdate(){
@@ -356,18 +399,20 @@ public class Jovios : MonoBehaviour {
 			SendPacket(mainThreadInterpret);
 			mainThreadInterpret = "";
 		}
+		if(ButtonInterpret != ""){
+			ButtonPress(ButtonInterpret);
+			ButtonInterpret = "";
+		}
 		if(PlayerConnectedInterpret != ""){
 			var myJSON = JSON.Parse(PlayerConnectedInterpret);
 			PlayerConnected(myJSON["packet"]["playerConnected"]["ip"], myJSON["packet"]["playerConnected"]["networkType"], myJSON["packet"]["playerConnected"]["playerNumber"].AsInt, myJSON["packet"]["playerConnected"]["primaryR"].AsFloat, myJSON["packet"]["playerConnected"]["primaryG"].AsFloat, myJSON["packet"]["playerConnected"]["primaryB"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryR"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryG"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryB"].AsFloat, myJSON["packet"]["playerConnected"]["playerName"], myJSON["packet"]["playerConnected"]["deviceID"].AsInt);
 			PlayerConnectedInterpret = "";
 		}
-		if(PlayerDisconnectedInterpret != ""){
-			Debug.Log(PlayerDisconnectedInterpret);
-			PlayerDisconnectedInterpret = "";
-		}
-		if(ButtonInterpret != ""){
-			ButtonPress(ButtonInterpret);
-			ButtonInterpret = "";
+		if(PlayerDisconnectedInterpret.Count > 0){
+			foreach(int i in PlayerDisconnectedInterpret){
+				PlayerDisconnected(GetPlayer(new JoviosUserID(i)));
+			}
+			PlayerDisconnectedInterpret = new List<int>();
 		}
 		foreach(int key in deviceIDToPlayerNumber.Keys){
 			if(packetJSON[key] != ""){
@@ -379,7 +424,7 @@ public class Jovios : MonoBehaviour {
 					break;
 
 				case JoviosNetworkingState.WebServer:
-					swWeb.WriteLine(packetJSON[key]);
+					SendNodeLinux(packetJSON[key], key.ToString());
 					break;
 
 				default:
@@ -459,9 +504,6 @@ public class Jovios : MonoBehaviour {
 		if(myJSON["packet"]["playerUpdated"] != null){
 			PlayerUpdated(myJSON["packet"]["playerUpdated"]["deviceID"].AsInt, myJSON["packet"]["playerUpdated"]["primaryR"].AsFloat, myJSON["packet"]["playerUpdated"]["primaryG"].AsFloat, myJSON["packet"]["playerUpdated"]["primaryB"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryR"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryG"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryB"].AsFloat, myJSON["packet"]["playerUpdated"]["playerName"]);
 		}
-		if(myJSON["packet"]["action"] == "closeSocket"){
-			PlayerDisconnectedInterpret = myJSON.ToString();
-		}
 	}
 
 	public void ButtonPress(string buttonJSON){
@@ -508,14 +550,6 @@ public class Jovios : MonoBehaviour {
 				}
 				else{
 					networkingStates.Add(deviceID, JoviosNetworkingState.Unity);
-				}
-				break;
-			case "tcp":
-				if(networkingStates.ContainsKey(deviceID)){
-					networkingStates[deviceID] = JoviosNetworkingState.TCP;
-				}
-				else{
-					networkingStates.Add(deviceID, JoviosNetworkingState.TCP);
 				}
 				break;
 			case "udp":
@@ -589,13 +623,7 @@ public class Jovios : MonoBehaviour {
 	//this disconnects when the application quits
 	void OnApplicationQuit(){
 		Network.Disconnect();
-		try{
-			isTrue = false;
-			tcpClientWeb.Close();
-		}
-		catch(Exception e){
-			Debug.Log (e.ToString());
-		}
+		pclient.disconnect();
 		try{
 			isTrue = false;
 			udpClient.Close();

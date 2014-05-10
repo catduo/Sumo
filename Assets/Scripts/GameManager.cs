@@ -41,11 +41,11 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 		jovios.AddPlayerListener(this);
 		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4, tieBreaker}; 
 		chosenArena = (GameObject) GameObject.Instantiate(arenaSelection, Vector3.zero, Quaternion.identity);
-		GameObject.Find("GameCode").GetComponent<UILabel>().text = jovios.gameCode.ToString();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		GameObject.Find("GameCode").GetComponent<UILabel>().text = jovios.gameCode;
 		if(Input.GetKeyDown(KeyCode.Escape)){
 			Application.Quit();
 		}
@@ -119,11 +119,11 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	public static void ChooseArena(int selectedArena){
+		MenuManager.gameState = GameState.Countdown;
 		if(selectedArena > 0){
 			Destroy (chosenArena);
 			chosenArena = (GameObject) GameObject.Instantiate(arenas[selectedArena], Vector3.zero, Quaternion.identity);
 			GameObject.Find ("Countdown").GetComponent<Countdown>().StartCountdown(3);
-			MenuManager.gameState = GameState.Countdown;
 			GameManager.StartRound();
 			for(int i = 0; i < GameObject.Find ("PlayerObjects").transform.childCount; i++){
 				GameObject.Find ("PlayerObjects").transform.GetChild(i).position = GameObject.Find("PlayerSpawners").transform.GetChild(Mathf.FloorToInt(GameObject.Find("PlayerSpawners").transform.childCount * Random.value)).transform.position;
