@@ -29,6 +29,7 @@ public class SumoCollision : MonoBehaviour {
 	void Update(){
 		if(is_ringOut){
 			if(ringOutDuration + ringOutTime < Time.time){
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = newRobot;
 				GetComponent<AudioSource>().Play();
 				is_ringOut = false;
@@ -54,6 +55,7 @@ public class SumoCollision : MonoBehaviour {
 			break;
 		case "Hand":
 			if(collision.transform.GetComponent<Projectile>().playerNumber != transform.parent.GetComponent<Sumo>().myPlayer.GetIDNumber()){
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = shotHit;
 				GetComponent<AudioSource>().Play();
 				lastPlayerHit = collision.transform.GetComponent<Projectile>().playerNumber;
@@ -75,6 +77,7 @@ public class SumoCollision : MonoBehaviour {
 		if(transform.parent != other.transform.parent){
 			switch(other.transform.name){
 			case "Bounds":
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = death;
 				GetComponent<AudioSource>().Play();
 				is_ringOut = true;
@@ -111,22 +114,26 @@ public class SumoCollision : MonoBehaviour {
 				}
 				break;
 			case "Bumper(Clone)":
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = bumper;
 				GetComponent<AudioSource>().Play();
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);
 				break;
 			case "BonusBox":
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = powerupGained;
 				GetComponent<AudioSource>().Play();
 				transform.parent.GetComponent<Sumo>().is_boostActive = true;
 				transform.parent.GetComponent<Sumo>().activeBoost = other.transform.parent.GetComponent<BonusSpawner>().bonusType;
 				switch(other.transform.parent.GetComponent<BonusSpawner>().bonusType){
 				case BonusType.Immunity:
+					GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 					GetComponent<AudioSource>().clip = invincibility;
 					GetComponent<AudioSource>().Play();
 					break;
 
 				case BonusType.Rampage:
+					GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 					GetComponent<AudioSource>().clip = rampaging;
 					GetComponent<AudioSource>().Play();
 					break;
@@ -144,6 +151,7 @@ public class SumoCollision : MonoBehaviour {
 		if(transform.parent != other.transform.parent){
 			switch(other.transform.name){
 			case "Bumper":
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = bumper;
 				GetComponent<AudioSource>().Play();
 				rigidbody.velocity = (other.transform.localScale.x * (transform.position - other.transform.position) * 15 / transform.parent.GetComponent<Sumo>().defense);

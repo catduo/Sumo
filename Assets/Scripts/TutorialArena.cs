@@ -90,7 +90,7 @@ public class TutorialArena : MonoBehaviour {
 	void StepFive(){
 		GameObject.Find("CountdownCorner").GetComponent<Countdown>().StartCountdown(30);
 		Destroy(GameObject.Find ("Walls"));
-		GameObject.Find("Tutorial").transform.FindChild("Container").FindChild("Label").GetComponent<UILabel>().text = "The walls have been removed from this arena, use the powerups to knock each other off.  You get a point if you were the last to touch someone before they get knowcked off.";
+		GameObject.Find("Tutorial").transform.FindChild("Container").FindChild("Label").GetComponent<UILabel>().text = "The walls have been removed from this arena, use the powerups to knock each other off.  You get a point if you were the last to touch someone before they get knocked off.";
 	}
 	
 	void OnDisable(){

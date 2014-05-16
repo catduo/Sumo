@@ -244,10 +244,11 @@ public class Sumo : MonoBehaviour {
 			body.rigidbody.angularVelocity = Vector3.zero;
 			float handScale = Mathf.Min (0.5F * strength, (0.4F * attackPower / attackMax + 0.2F) * strength);
 			hand.localScale = new Vector3(handScale, handScale, handScale);
-			if(is_attacking){
+			if(is_attacking && !is_rampage){
 				if(is_range){
 					hand.GetComponent<Projectile>().Range();
 				}
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = fireBullet;
 				GetComponent<AudioSource>().Play();
 				hand.GetComponent<Projectile>().facing = body.up;
@@ -309,8 +310,8 @@ public class Sumo : MonoBehaviour {
 	}
 
 	void OnDisable(){
-		if(jovios.GetPlayer(playerNumber) != null){
-			jovios.GetPlayer(playerNumber).RemovePlayerObject(gameObject);
+		if(jovios.GetPlayer(myPlayer) != null){
+			jovios.GetPlayer(myPlayer).RemovePlayerObject(gameObject);
 			if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left") != null){
 				jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("left").SetDirection(Vector2.zero);
 			}

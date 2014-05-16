@@ -199,7 +199,7 @@ public class Jovios : MonoBehaviour {
 	public void StartServer(string thisGameName = ""){
 		NodeLinux();
 		udpPort = 24000;
-		unityPort = 25011;
+		unityPort = 25001;
 		StartUnity();
 		Application.runInBackground = true;
 		SetGameName(thisGameName);
@@ -233,7 +233,6 @@ public class Jovios : MonoBehaviour {
 						pclient.init();
 						pclient.On("onAdd", (data3)=> {
 							var userJoined = JSON.Parse(data3.ToString());
-							Debug.Log(userJoined["body"]["user"]);
 						});
 						pclient.On("onResponse", (data2)=> {
 							addMessage(data2.ToString());
@@ -257,7 +256,7 @@ public class Jovios : MonoBehaviour {
 
 	void addMessage(string messge) {
 		var packet = JSON.Parse(messge);
-		mainThreadInterpret = packet["body"]["msg"];
+		mainThreadInterpret.Add(packet["body"]["msg"]);
 	}
 	
 	//Entry chat application.
@@ -268,7 +267,6 @@ public class Jovios : MonoBehaviour {
 		userMessage.Add("hosting", true);
 		if (pclient != null) {
 			pclient.request("connector.entryHandler.enter", userMessage, (data)=>{
-				Debug.Log (data.ToString());
 				System.Object gameID;
 				data.TryGetValue("gameID", out gameID);
 				gameCode = gameID.ToString();
@@ -347,7 +345,6 @@ public class Jovios : MonoBehaviour {
 		networkPlayers.Add(networkPlayerCount, player);
 		networkPlayerCount ++;
 		foreach(KeyValuePair<string, Texture2D> kvp in exportTextures){
-			Debug.Log (kvp.Key);
 			networkView.RPC ("SendImage",player, kvp.Key, kvp.Value.EncodeToPNG());
 		}
 	}
@@ -388,32 +385,29 @@ public class Jovios : MonoBehaviour {
 	private Dictionary<int, string> packetJSON = new Dictionary<int, string>();
 	private Dictionary<int, JoviosNetworkingState> networkingStates = new Dictionary<int, JoviosNetworkingState>();
 	private Dictionary<int, string> connectionJSON = new Dictionary<int, string>();
-	string mainThreadInterpret = "";
-	string PlayerConnectedInterpret = "";
-	string ButtonInterpret = "";
+	List<string> mainThreadInterpret = new List<string>();
+	List<string> PlayerConnectedInterpret = new List<string>();
 	List<int> PlayerDisconnectedInterpret = new List<int>();
 	string udpThreadInterpret = "";
 	//this sends out the packets as they are generated
 	void FixedUpdate(){
-		if(mainThreadInterpret != ""){
-			SendPacket(mainThreadInterpret);
-			mainThreadInterpret = "";
-		}
-		if(ButtonInterpret != ""){
-			ButtonPress(ButtonInterpret);
-			ButtonInterpret = "";
-		}
-		if(PlayerConnectedInterpret != ""){
-			var myJSON = JSON.Parse(PlayerConnectedInterpret);
-			PlayerConnected(myJSON["packet"]["playerConnected"]["ip"], myJSON["packet"]["playerConnected"]["networkType"], myJSON["packet"]["playerConnected"]["playerNumber"].AsInt, myJSON["packet"]["playerConnected"]["primaryR"].AsFloat, myJSON["packet"]["playerConnected"]["primaryG"].AsFloat, myJSON["packet"]["playerConnected"]["primaryB"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryR"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryG"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryB"].AsFloat, myJSON["packet"]["playerConnected"]["playerName"], myJSON["packet"]["playerConnected"]["deviceID"].AsInt);
-			PlayerConnectedInterpret = "";
-		}
-		if(PlayerDisconnectedInterpret.Count > 0){
-			foreach(int i in PlayerDisconnectedInterpret){
-				PlayerDisconnected(GetPlayer(new JoviosUserID(i)));
+		if(mainThreadInterpret.Count > 0){
+			for(int i = 0; i < mainThreadInterpret.Count; i++){
+				SendPacket(mainThreadInterpret[i]);
 			}
-			PlayerDisconnectedInterpret = new List<int>();
+			mainThreadInterpret = new List<string>();
 		}
+		if(PlayerConnectedInterpret.Count > 0){
+			for(int i = 0; i < PlayerConnectedInterpret.Count; i++){
+				var myJSON = JSON.Parse(PlayerConnectedInterpret[i]);
+				PlayerConnected(myJSON["packet"]["playerConnected"]["ip"], myJSON["packet"]["playerConnected"]["networkType"], myJSON["packet"]["playerConnected"]["playerNumber"].AsInt, myJSON["packet"]["playerConnected"]["primaryR"].AsFloat, myJSON["packet"]["playerConnected"]["primaryG"].AsFloat, myJSON["packet"]["playerConnected"]["primaryB"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryR"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryG"].AsFloat, myJSON["packet"]["playerConnected"]["secondaryB"].AsFloat, myJSON["packet"]["playerConnected"]["playerName"], myJSON["packet"]["playerConnected"]["deviceID"].AsInt);
+			}
+			PlayerConnectedInterpret = new List<string>();
+		}
+		for(int i = 0; i < PlayerDisconnectedInterpret.Count; i++){
+			PlayerDisconnected(GetPlayer(new JoviosUserID(PlayerDisconnectedInterpret[i])));
+		}
+		PlayerDisconnectedInterpret = new List<int>();
 		foreach(int key in deviceIDToPlayerNumber.Keys){
 			if(packetJSON[key] != ""){
 				packetJSON[key] += "}}";
@@ -463,21 +457,23 @@ public class Jovios : MonoBehaviour {
 			for(int i = 0; i < myJSON["packet"]["response"].Count; i++){
 				switch(myJSON["packet"]["response"][i]["type"]){
 				case "button":
-					ButtonInterpret = myJSON.ToString();
+					ButtonPress(myJSON["deviceID"].AsInt, myJSON["packet"]["response"][i].ToString ());
 					break;
 					
 				case "direction":
 					switch(myJSON["packet"]["response"][i]["action"]){
 					case "hold":
-						GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetDirection(myJSON["packet"]["response"][i]["direction"]).SetDirection(new Vector2(myJSON["packet"]["response"][i]["position"][0].AsFloat, myJSON["packet"]["response"][i]["position"][1].AsFloat));
+						if(GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetDirection(myJSON["packet"]["response"][i]["direction"]) != null){
+							GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetDirection(myJSON["packet"]["response"][i]["direction"]).SetDirection(new Vector2(myJSON["packet"]["response"][i]["position"][0].AsFloat, myJSON["packet"]["response"][i]["position"][1].AsFloat));
+						}
 						break;
 						
 					case "press":
-						ButtonInterpret = myJSON.ToString();
+						ButtonPress(myJSON["deviceID"].AsInt, myJSON["packet"]["response"][i].ToString ());
 						break;
 						
 					case "release":
-						ButtonInterpret = myJSON.ToString();
+						ButtonPress(myJSON["deviceID"].AsInt, myJSON["packet"]["response"][i].ToString ());
 						break;
 						
 					default:
@@ -486,7 +482,6 @@ public class Jovios : MonoBehaviour {
 					break;
 					
 				case "accelerometer":
-					Debug.Log (myJSON["packet"]["response"][i]);
 					var accInfo = myJSON["packet"]["response"][i];
 					GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetAccelerometer().SetGyro(new Quaternion(-accInfo["gyroX"].AsFloat, -accInfo["gyroY"].AsFloat, accInfo["gyroZ"].AsFloat, accInfo["gyroW"].AsFloat));
 					GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle().GetAccelerometer().SetAcceleration(new Vector3(accInfo["accx"].AsFloat, accInfo["accy"].AsFloat, accInfo["accZ"].AsFloat));
@@ -499,38 +494,52 @@ public class Jovios : MonoBehaviour {
 			}
 		}
 		if(myJSON["packet"]["playerConnected"] != null){
-			PlayerConnectedInterpret = myJSON.ToString();
+			PlayerConnectedInterpret.Add(myJSON.ToString());
 		}
 		if(myJSON["packet"]["playerUpdated"] != null){
 			PlayerUpdated(myJSON["packet"]["playerUpdated"]["deviceID"].AsInt, myJSON["packet"]["playerUpdated"]["primaryR"].AsFloat, myJSON["packet"]["playerUpdated"]["primaryG"].AsFloat, myJSON["packet"]["playerUpdated"]["primaryB"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryR"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryG"].AsFloat, myJSON["packet"]["playerUpdated"]["secondaryB"].AsFloat, myJSON["packet"]["playerUpdated"]["playerName"]);
 		}
 	}
 
-	public void ButtonPress(string buttonJSON){
+	public void ButtonPress(int player, string buttonJSON){
 		var myJSON = JSON.Parse(buttonJSON);
-		for(int i = 0; i < myJSON["packet"]["response"].Count; i++){
-			switch(myJSON["packet"]["response"][i]["type"]){
-			case "button":
-				JoviosButtonEvent e = new JoviosButtonEvent(myJSON["packet"]["response"][i]["button"], GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle(), myJSON["packet"]["response"][i]["action"]);
-				foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerListeners()){
-					if(listener.ButtonEventReceived(e)){
-						return;
-					}
+		switch(myJSON["type"]){
+		case "button":
+			JoviosButtonEvent e = new JoviosButtonEvent(myJSON["button"], GetPlayer(new JoviosUserID(player)).GetControllerStyle(), myJSON["action"]);
+			foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(player)).GetControllerListeners()){
+				if(listener.ButtonEventReceived(e)){
+					return;
 				}
-				break;
-
-			case "direction":
-				JoviosButtonEvent e1 = new JoviosButtonEvent(myJSON["packet"]["response"][i]["direction"], GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerStyle(), myJSON["packet"]["response"][i]["action"]);
-				foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(myJSON["deviceID"].AsInt)).GetControllerListeners()){
-					if(listener.ButtonEventReceived(e1)){
-						return;
-					}
-				}
-				break;
-
-			default:
-				break;
 			}
+			if(GetPlayer(new JoviosUserID(player)).GetControllerStyle().GetButton(myJSON["button"]) != null){
+				if(myJSON["action"] == "press"){
+					GetPlayer(new JoviosUserID(player)).GetControllerStyle().GetButton(myJSON["button"]).is_pressed = true;
+				}
+				else{
+					GetPlayer(new JoviosUserID(player)).GetControllerStyle().GetButton(myJSON["button"]).is_pressed = false;
+				}
+			}
+			break;
+
+		case "direction":
+			JoviosButtonEvent e1 = new JoviosButtonEvent(myJSON["direction"], GetPlayer(new JoviosUserID(player)).GetControllerStyle(), myJSON["action"]);
+			foreach(IJoviosControllerListener listener in GetPlayer(new JoviosUserID(player)).GetControllerListeners()){
+				if(listener.ButtonEventReceived(e1)){
+					return;
+				}
+			}
+			if(GetPlayer(new JoviosUserID(player)).GetControllerStyle().GetButton(myJSON["direction"]) != null){
+				if(myJSON["action"] == "press"){
+					GetPlayer(new JoviosUserID(player)).GetControllerStyle().GetDirection(myJSON["direction"]).is_pressed = true;
+				}
+				else{
+					GetPlayer(new JoviosUserID(player)).GetControllerStyle().GetDirection(myJSON["direction"]).is_pressed = false;
+				}
+			}
+			break;
+
+		default:
+			break;
 		}
 	}
 	

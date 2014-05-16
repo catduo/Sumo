@@ -40,13 +40,13 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			else{
 				transform.FindChild("Bracket").renderer.enabled = false;
 			}
-			if(jovios.GetPlayer(myPlayer).PlayerObjectCount() > 0 && myPlayerObject != null){
+			if(myPlayerObject != null){
 				transform.FindChild("Immunity").renderer.enabled = false;
 				transform.FindChild("Range").renderer.enabled = false;
 				transform.FindChild("Rampage").renderer.enabled = false;
 				transform.FindChild("Speed").renderer.enabled = false;
 				transform.FindChild("Strength").renderer.enabled = false;
-				if(jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().activeBoost != BonusType.None){
+				if(jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().activeBoost != BonusType.None && MenuManager.gameState == GameState.GameOn){
 					transform.FindChild(jovios.GetPlayer(myPlayer).GetPlayerObject().GetComponent<Sumo>().activeBoost.ToString()).renderer.enabled = true;
 				}
 			}
@@ -125,7 +125,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 				break;
 				
 			case "release":
-				if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right") != null){
+				if(jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right") != null && myPlayerObject != null){
 					jovios.GetPlayer(myPlayer).GetControllerStyle().GetDirection("right").SetDirection(Vector2.zero);
 					myPlayerObject.GetComponent<Sumo>().Attack();
 				}
@@ -160,14 +160,13 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 			
 		case "PlayAgain":
 			if(action == "release"){
-				if(MenuManager.gameState != GameState.ChooseArena && MenuManager.gameState != GameState.Countdown && MenuManager.gameState != GameState.GameEnd){
-					Camera.main.transform.GetComponent<GameManager>().EndRound();
-				}
+				Camera.main.transform.GetComponent<GameManager>().EndRound();
 				Ready ();
 			}
 			break;
 			
 		case "Click":
+			GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 			GetComponent<AudioSource>().clip = cursorClick;
 			GetComponent<AudioSource>().Play();
 			if(action == "press"){
@@ -182,7 +181,7 @@ public class Status : MonoBehaviour, IJoviosControllerListener {
 	}
 	
 	public void Ready(){
-		if(MenuManager.gameState == GameState.ChooseArena){
+		if(MenuManager.gameState == GameState.ChooseArena || MenuManager.gameState == GameState.GameEnd){
 			SpawnCursor();
 			checkMark.renderer.enabled = true;
 		}

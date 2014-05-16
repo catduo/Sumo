@@ -30,6 +30,7 @@ public class Projectile : MonoBehaviour {
 			}
 			rigidbody.velocity = facing * 10;
 			if(fireTime + fireDuration / 2 < Time.time){
+				GetComponent<AudioSource>().volume = MenuManager.sfxVolume;
 				GetComponent<AudioSource>().clip = fizzle;
 				GetComponent<AudioSource>().Play();
 				Destroy(gameObject);

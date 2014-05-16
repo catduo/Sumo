@@ -5,9 +5,11 @@ using System.Collections.Generic;
 public class ArenaSpawning : MonoBehaviour {
 	
 	public List<Vector3> bonusSpawnLocations;
-	public List<Vector3> bumperSpawnLocations;
 	public GameObject bonusSpawner;
+	public List<Vector3> bumperSpawnLocations;
 	public GameObject bumper;
+	public List<Vector3> playerSpawnLocations;
+	public GameObject playerSpawner;
 
 	// Use this for initialization
 	void Start () {
@@ -23,6 +25,11 @@ public class ArenaSpawning : MonoBehaviour {
 			newBumper.transform.parent = transform.FindChild("Bumpers");
 			newBumper.transform.localPosition = position;
 			newBumper.transform.localScale = new Vector3(1,0.5F,1);
+		}
+		foreach (Vector3 position in playerSpawnLocations){
+			GameObject newBumper = (GameObject) GameObject.Instantiate(playerSpawner, position, Quaternion.identity);
+			newBumper.transform.parent = transform.FindChild("PlayerSpawners");
+			newBumper.transform.localPosition = position;
 		}
 		GameObject.Find ("CountdownCorner").GetComponent<Countdown>().StartCountdown(180);
 	}

@@ -18,8 +18,8 @@ public class MenuManager : MonoBehaviour {
 	static public bool is_loadingNewGame = false;
 	static public bool is_menu = false;
 	static public float lastTickTime;
-	private float musicVolume = 1;
-	private float sfxVolume = 1;
+	public static float musicVolume = 1;
+	public static float sfxVolume = 1;
 
 	private float roundStart;
 	
@@ -92,6 +92,9 @@ public class MenuManager : MonoBehaviour {
 			Destroy(GameManager.chosenArena);
 			if(GameManager.winner.Count > 0 && !GameObject.Find("SuddenDeath").GetComponent<UIPanel>().enabled){
 				GameManager.SetVictoryPlayer(jovios.GetPlayer(new JoviosUserID(GameManager.winner[0])));
+			}
+			else{
+				GameObject.Find ("NoVictory").GetComponent<UIPanel>().enabled = true;
 			}
 			break;
 

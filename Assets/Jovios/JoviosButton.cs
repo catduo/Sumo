@@ -82,6 +82,7 @@ public class JoviosButton{
 		}
 		JSON = "{'type':'"+type+"','position':["+position.x+","+position.y+","+scale.x+","+scale.y+"], 'anchor':'"+anchor+"',"+cnt+","+rsp+",'image':'"+image+"'}";
 	}
+	public bool is_pressed = false;
 	private Vector2 position;
 	private Vector2 scale;
 	private string anchor;

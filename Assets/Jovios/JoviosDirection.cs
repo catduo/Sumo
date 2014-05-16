@@ -33,5 +33,6 @@ public class JoviosDirection{
 	public void SetDirection(Vector2 newDirection){
 		direction = newDirection;
 	}
+	public bool is_pressed = false;
 }
 

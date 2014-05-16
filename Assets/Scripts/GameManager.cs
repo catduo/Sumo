@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	// Use this for initialization
 	void Start () {
+		GameObject.Find("Logo").GetComponent<UIPanel>().enabled = true;
 		jovios.StartServer(controlStyleObjects, exportTextures, "BotABoom");
 		jovios.AddPlayerListener(this);
 		arenas = new GameObject[] {arenaSelection, arena1, arena2, arena3, arena4, tieBreaker}; 
@@ -45,6 +46,7 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	
 	// Update is called once per frame
 	void Update () {
+		GetComponent<AudioSource>().volume = MenuManager.musicVolume;
 		GameObject.Find("GameCode").GetComponent<UILabel>().text = jovios.gameCode;
 		if(Input.GetKeyDown(KeyCode.Escape)){
 			Application.Quit();
@@ -56,6 +58,8 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	bool IJoviosPlayerListener.PlayerConnected(JoviosPlayer p){
+		GameObject.Find("Logo").GetComponent<UIPanel>().enabled = false;
+		ArenaSelection.is_label = true;
 		GameObject newStatusObject = null;
 		GameObject ps = GameObject.Find("PlayerStatus");
 		for(int i = 0; i < ps.transform.childCount; i++){
@@ -96,26 +100,31 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 	}
 	
 	public void EndRound(){
-		GameObject.Find ("PlayerStatus").transform.localPosition = new Vector3(0,5,10);
-		GameObject.Find ("PlayerStatusAreas").transform.localPosition = new Vector3(0,5,10);
-		Destroy(chosenArena);
-		MenuManager.gameState = GameState.ChooseArena;
-		//play again controls
-		chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
-		for(int i = 0; i < jovios.GetPlayerCount(); i++){
-			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Immunity").renderer.enabled = false;
-			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Range").renderer.enabled = false;
-			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Rampage").renderer.enabled = false;
-			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Speed").renderer.enabled = false;
-			jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Strength").renderer.enabled = false;
-			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;
-			jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().checkMark.renderer.enabled = false;
+		if(MenuManager.gameState == GameState.GameEnd){
+			GameObject.Find ("NoVictory").GetComponent<UIPanel>().enabled = false;
+			GameObject.Find ("PlayerStatus").transform.localPosition = new Vector3(0,5,10);
+			GameObject.Find ("PlayerStatusAreas").transform.localPosition = new Vector3(0,5,10);
+			if(chosenArena != null){
+				Destroy(chosenArena);
+			}
+			MenuManager.gameState = GameState.ChooseArena;
+			//play again controls
+			chosenArena = (GameObject) GameObject.Instantiate(arenas[0], Vector3.zero, Quaternion.identity);
+			for(int i = 0; i < jovios.GetPlayerCount(); i++){
+				jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Immunity").renderer.enabled = false;
+				jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Range").renderer.enabled = false;
+				jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Rampage").renderer.enabled = false;
+				jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Speed").renderer.enabled = false;
+				jovios.GetPlayer(i).GetStatusObject().transform.FindChild("Strength").renderer.enabled = false;
+				jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().xMark.renderer.enabled = true;
+				jovios.GetPlayer(i).GetStatusObject().GetComponent<Status>().checkMark.renderer.enabled = false;
+			}
+			Dictionary<int, float> newScore = new Dictionary<int, float>();
+			foreach (KeyValuePair<int, float> kvp in score){
+				newScore.Add(kvp.Key, 0);
+			}
+			score = newScore;
 		}
-		Dictionary<int, float> newScore = new Dictionary<int, float>();
-		foreach (KeyValuePair<int, float> kvp in score){
-			newScore.Add(kvp.Key, 0);
-		}
-		score = newScore;
 	}
 	
 	public static void ChooseArena(int selectedArena){
@@ -125,11 +134,11 @@ public class GameManager : MonoBehaviour, IJoviosPlayerListener {
 			chosenArena = (GameObject) GameObject.Instantiate(arenas[selectedArena], Vector3.zero, Quaternion.identity);
 			GameObject.Find ("Countdown").GetComponent<Countdown>().StartCountdown(3);
 			GameManager.StartRound();
+			bonusSpawners = chosenArena.transform.FindChild("BonusSpawners");
+			bonusSpawnTimer = Time.time;
 			for(int i = 0; i < GameObject.Find ("PlayerObjects").transform.childCount; i++){
 				GameObject.Find ("PlayerObjects").transform.GetChild(i).position = GameObject.Find("PlayerSpawners").transform.GetChild(Mathf.FloorToInt(GameObject.Find("PlayerSpawners").transform.childCount * Random.value)).transform.position;
 			}
-			bonusSpawners = chosenArena.transform.FindChild("BonusSpawners");
-			bonusSpawnTimer = Time.time;
 		}
 	}
 	
